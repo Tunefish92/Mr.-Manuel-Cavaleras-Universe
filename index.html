@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mr. Manuel Cavaleras Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout-Idee: Anschlagtafel im Dorf. Erst Überblick und Beziehungskarte, dann ein Band pro Welt, Karten farblich nach Welt. */
+:root{
+  --bg:#f2f5f1; --surface:#ffffff; --ink:#16211b; --muted:#56655c; --line:#d3dbd4;
+  --tyrol:#2c6247; --village:#8a5a1c; --vienna:#b3302a; --parody:#3c5a8c;
+  --tint-tyrol:#e3efe7; --tint-village:#f4ead9; --tint-vienna:#f8e4e2; --tint-parody:#e4eaf5;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#111814; --surface:#1a231e; --ink:#e9efe9; --muted:#9fb0a5; --line:#2f3d35;
+    --tyrol:#7cc49c; --village:#e0ae63; --vienna:#f08a82; --parody:#93b2ea;
+    --tint-tyrol:#1d3327; --tint-village:#3a2d18; --tint-vienna:#3d1f1d; --tint-parody:#1f2b42;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#111814; --surface:#1a231e; --ink:#e9efe9; --muted:#9fb0a5; --line:#2f3d35;
+  --tyrol:#7cc49c; --village:#e0ae63; --vienna:#f08a82; --parody:#93b2ea;
+  --tint-tyrol:#1d3327; --tint-village:#3a2d18; --tint-vienna:#3d1f1d; --tint-parody:#1f2b42;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 var(--body)}
+a{color:inherit;text-underline-offset:3px}
+a:focus-visible{outline:3px solid var(--vienna);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 18px 64px;display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(2rem,7vw,3.4rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700}
+h3{font-size:1.2rem;font-weight:700;overflow-wrap:anywhere}
+.eyebrow{font:600 .8rem/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:12px}
+header p{margin:0;max-width:62ch;color:var(--muted)}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.stat{border:1.5px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.92rem;background:var(--surface)}
+.stat b{font-family:var(--display)}
+.note{border-left:4px solid var(--village);background:var(--tint-village);padding:12px 14px;border-radius:0 8px 8px 0;max-width:70ch}
+.note p{margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:.9rem;color:var(--muted);align-items:center}
+.pill{display:inline-block;font:600 .72rem/1 var(--body);letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:4px;white-space:nowrap}
+.pill.sure{background:var(--ink);color:var(--bg)}
+.pill.guess{border:1.5px dashed var(--muted);color:var(--muted)}
+section{display:flex;flex-direction:column;gap:14px}
+.mapbox{overflow-x:auto;border:1.5px solid var(--line);border-radius:12px;background:var(--surface)}
+.mapbox svg{display:block;min-width:860px;width:100%;height:auto}
+.hint{font-size:.88rem;color:var(--muted);margin:0}
+svg text{font-family:var(--body);fill:var(--ink)}
+svg .nm{font:700 15px var(--display)}
+svg .sub{font-size:11.5px;fill:var(--muted)}
+svg .lab{font-size:12px;font-style:italic;paint-order:stroke;stroke:var(--surface);stroke-width:5px;stroke-linejoin:round}
+svg .edge{stroke:var(--ink);stroke-width:1.6;fill:none}
+svg .edge.dash{stroke-dasharray:5 5;stroke:var(--muted)}
+svg .colh{font:700 13px var(--display);letter-spacing:.08em;text-transform:uppercase}
+.n-tyrol rect{fill:var(--tint-tyrol);stroke:var(--tyrol)}
+.n-village rect{fill:var(--tint-village);stroke:var(--village)}
+.n-vienna rect{fill:var(--tint-vienna);stroke:var(--vienna)}
+svg g rect{stroke-width:1.8}
+.world{border-top:5px solid var(--c);padding-top:14px}
+.world > p{margin:0;color:var(--muted);max-width:66ch}
+.w-tyrol{--c:var(--tyrol);--t:var(--tint-tyrol)}
+.w-village{--c:var(--village);--t:var(--tint-village)}
+.w-vienna{--c:var(--vienna);--t:var(--tint-vienna)}
+.w-parody{--c:var(--parody);--t:var(--tint-parody)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.card{background:var(--surface);border:1.5px solid var(--line);border-left:6px solid var(--c);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.card .top{display:flex;gap:10px;align-items:center}
+.card .top .who{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.avatar{flex:none;width:52px;height:52px;border-radius:50%;background:var(--t);border:2px solid var(--c);color:var(--c);display:grid;place-items:center;font:800 1.15rem var(--display)}
+.card .role{color:var(--c);font-weight:600;font-size:.95rem;margin:0}
+.aka{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.aka li{background:var(--t);border-radius:4px;padding:2px 8px;font-size:.9rem}
+.aka li::before{content:"auch: ";color:var(--muted);font-size:.78rem}
+.card p{margin:0;font-size:.97rem}
+.rel{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:.93rem}
+.rel li{padding-left:16px;position:relative}
+.rel li::before{content:"";position:absolute;left:0;top:.7em;width:10px;height:2px;background:var(--c)}
+.src{font-size:.84rem;color:var(--muted);margin-top:auto}
+.small{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.small li{background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.93rem;max-width:100%}
+.small b{font-family:var(--display)}
+.tablebox{overflow-x:auto;border:1.5px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .8rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+footer{color:var(--muted);font-size:.9rem;border-top:1.5px solid var(--line);padding-top:16px}
+footer p{margin:0 0 6px;max-width:75ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">YouTube · @manuelcavaleras · Figurenübersicht</span>
+  <h1>Mr. Manuel Cavaleras Universe</h1>
+  <p>Alle benannten Figuren aus den Tiroler und Wiener Zeichentrick-Kurzfilmen: voller Name, wo es einen gibt, Spitznamen und wer mit wem zusammenhängt.</p>
+  <div class="stats">
+    <span class="stat"><b>10</b> Figuren mit Nachname oder Titel</span>
+    <span class="stat"><b>30+</b> benannte Figuren</span>
+    <span class="stat"><b>4</b> Welten</span>
+  </div>
+</header>
+
+<div class="note"><p><b>So ist die Seite entstanden.</b> Ich konnte die Videos nicht abspielen und keine Transkripte abrufen. Alles hier stammt aus Videotiteln, Beschreibungen, Hashtags, Sprecherangaben und den Namen der Merch-Designs. Namen, die nur im Video gesprochen werden, fehlen. Einige Verbindungen sind begründete Vermutungen und entsprechend markiert. Die Kreise mit Initialen sind Platzhalter, keine Bilder der Figuren.</p></div>
+
+<div class="legend">
+  <span><span class="pill sure">Belegt</span> steht in einem Titel oder einer Beschreibung</span>
+  <span><span class="pill guess">Vermutet</span> aus Hashtags oder Merch-Namen abgeleitet</span>
+</div>
+
+<section aria-labelledby="map-h">
+  <h2 id="map-h">Beziehungskarte</h2>
+  <p class="hint">Durchgezogene Linien sind in den Videobeschreibungen belegt, gestrichelte sind vermutet. Am Handy seitlich wischen.</p>
+  <div class="mapbox">
+  <svg viewBox="0 0 1000 680" role="img" aria-label="Beziehungskarte der wichtigsten Figuren. Dieselben Beziehungen stehen in der Tabelle weiter unten.">
+    <text class="colh" x="140" y="30" text-anchor="middle" style="fill:var(--tyrol)">Herberts Show</text>
+    <text class="colh" x="590" y="30" text-anchor="middle" style="fill:var(--vienna)">Wien</text>
+    <text class="colh" x="850" y="30" text-anchor="middle" style="fill:var(--village)">Tiroler Dorf</text>
+
+    <path class="edge" d="M140 103 V177"/>
+    <path class="edge dash" d="M140 223 V297"/>
+    <path class="edge" d="M55 200 C10 200 10 440 55 440"/>
+    <path class="edge" d="M225 200 H275"/>
+    <path class="edge" d="M590 103 V157"/>
+    <path class="edge" d="M675 80 H765"/>
+    <path class="edge dash" d="M850 103 V157"/>
+    <path class="edge" d="M850 203 V257"/>
+    <path class="edge" d="M590 323 V377"/>
+    <path class="edge" d="M590 533 V587"/>
+    <path class="edge dash" d="M850 413 V467"/>
+    <path class="edge dash" d="M850 513 V567"/>
+
+    <text class="lab" x="140" y="144" text-anchor="middle">verheiratet</text>
+    <text class="lab" x="140" y="264" text-anchor="middle">seine Kuh</text>
+    <text class="lab" x="24" y="324" text-anchor="start">Nachbarn</text>
+    <text class="lab" x="250" y="190" text-anchor="middle">Freunde</text>
+    <text class="lab" x="590" y="134" text-anchor="middle">ihr Burli</text>
+    <text class="lab" x="720" y="70" text-anchor="middle">Gast</text>
+    <text class="lab" x="850" y="134" text-anchor="middle">bringt „Plonaspeck“</text>
+    <text class="lab" x="850" y="234" text-anchor="middle">Kunde und Hutverkäufer</text>
+    <text class="lab" x="590" y="354" text-anchor="middle">Patientin und Chirurg</text>
+    <text class="lab" x="590" y="564" text-anchor="middle">interviewt</text>
+    <text class="lab" x="850" y="444" text-anchor="middle">Streit um Kirchensteuer</text>
+    <text class="lab" x="850" y="544" text-anchor="middle">versorgen den Wanderer</text>
+
+    <g class="n-tyrol"><rect x="55" y="57" width="170" height="46" rx="8"/><text class="nm" x="140" y="77" text-anchor="middle">Hildegard</text><text class="sub" x="140" y="93" text-anchor="middle">Herberts Frau</text></g>
+    <g class="n-tyrol"><rect x="55" y="177" width="170" height="46" rx="8"/><text class="nm" x="140" y="197" text-anchor="middle">Herbert Brunnthaler</text><text class="sub" x="140" y="213" text-anchor="middle">Moderator</text></g>
+    <g class="n-tyrol"><rect x="55" y="297" width="170" height="46" rx="8"/><text class="nm" x="140" y="317" text-anchor="middle">Heidi</text><text class="sub" x="140" y="333" text-anchor="middle">die miauende Kuh</text></g>
+    <g class="n-tyrol"><rect x="55" y="417" width="170" height="46" rx="8"/><text class="nm" x="140" y="437" text-anchor="middle">Bärbel Unterranacher</text><text class="sub" x="140" y="453" text-anchor="middle">das Nachbarsmädchen</text></g>
+    <g class="n-vienna"><rect x="275" y="177" width="150" height="46" rx="8"/><text class="nm" x="350" y="197" text-anchor="middle">Alfons</text><text class="sub" x="350" y="213" text-anchor="middle">Freund aus Wien</text></g>
+
+    <g class="n-vienna"><rect x="505" y="57" width="170" height="46" rx="8"/><text class="nm" x="590" y="77" text-anchor="middle">Edith</text><text class="sub" x="590" y="93" text-anchor="middle">die Backfee</text></g>
+    <g class="n-vienna"><rect x="505" y="157" width="170" height="46" rx="8"/><text class="nm" x="590" y="177" text-anchor="middle">Burli</text><text class="sub" x="590" y="193" text-anchor="middle">Ediths Bub</text></g>
+    <g class="n-vienna"><rect x="505" y="277" width="170" height="46" rx="8"/><text class="nm" x="590" y="297" text-anchor="middle">Frau Simacek</text><text class="sub" x="590" y="313" text-anchor="middle">will eine normale Nase</text></g>
+    <g class="n-vienna"><rect x="495" y="377" width="190" height="46" rx="8"/><text class="nm" x="590" y="397" text-anchor="middle">Dr. Eberhard Zupffinger</text><text class="sub" x="590" y="413" text-anchor="middle">Beauty-Doc</text></g>
+    <g class="n-vienna"><rect x="505" y="487" width="170" height="46" rx="8"/><text class="nm" x="590" y="507" text-anchor="middle">Das Hutmännchen</text><text class="sub" x="590" y="523" text-anchor="middle">grantelt durch Wien</text></g>
+    <g class="n-vienna"><rect x="505" y="587" width="170" height="46" rx="8"/><text class="nm" x="590" y="607" text-anchor="middle">Die Wiener Sonne</text><text class="sub" x="590" y="623" text-anchor="middle">die Sonne über Wien</text></g>
+
+    <g class="n-village"><rect x="765" y="57" width="170" height="46" rx="8"/><text class="nm" x="850" y="77" text-anchor="middle">Peppi Raffl</text><text class="sub" x="850" y="93" text-anchor="middle">aus Tirol, zu Gast bei Edith</text></g>
+    <g class="n-village"><rect x="765" y="157" width="170" height="46" rx="8"/><text class="nm" x="850" y="177" text-anchor="middle">Ploner</text><text class="sub" x="850" y="193" text-anchor="middle">möchte einen Hut kaufen</text></g>
+    <g class="n-village"><rect x="765" y="257" width="170" height="46" rx="8"/><text class="nm" x="850" y="277" text-anchor="middle">Gumpitsch</text><text class="sub" x="850" y="293" text-anchor="middle">alter Ladenbesitzer</text></g>
+    <g class="n-village"><rect x="765" y="367" width="170" height="46" rx="8"/><text class="nm" x="850" y="387" text-anchor="middle">Kofler-Bauer</text><text class="sub" x="850" y="403" text-anchor="middle">der Steuersünder, hat einen Sohn</text></g>
+    <g class="n-village"><rect x="765" y="467" width="170" height="46" rx="8"/><text class="nm" x="850" y="487" text-anchor="middle">Pater Vinzenz</text><text class="sub" x="850" y="503" text-anchor="middle">Dorfpfarrer</text></g>
+    <g class="n-village"><rect x="765" y="567" width="170" height="46" rx="8"/><text class="nm" x="850" y="587" text-anchor="middle">Irmgard</text><text class="sub" x="850" y="603" text-anchor="middle">Kräuterhexe</text></g>
+  </svg>
+  </div>
+</section>
+
+<section class="world w-tyrol" aria-labelledby="w1">
+  <h2 id="w1">Herberts Show</h2>
+  <p>Englischsprachige Reihe aus Tirol, in der Herbert der Welt die österreichische Kultur erklärt: Freundlichkeit, Musik, Krampus und Nikolaus, Wien und Ostern.</p>
+  <div class="cards" data-world="tyrol"></div>
+</section>
+
+<section class="world w-village" aria-labelledby="w2">
+  <h2 id="w2">Das Tiroler Dorf</h2>
+  <p>Dialekt-Kurzfilme aus einer Osttiroler Pfarrgemeinde: Der Steuersünder, Dorfmedizin, Dorfgerücht und der Hutladen.</p>
+  <div class="cards" data-world="village"></div>
+</section>
+
+<section class="world w-vienna" aria-labelledby="w3">
+  <h2 id="w3">Wien</h2>
+  <p>Kurzfilme auf Wienerisch: Ediths Backstube, Der Nasenzupfer, das Hutmännchen, Das Versprechen und mehr.</p>
+  <div class="cards" data-world="vienna"></div>
+</section>
+
+<section class="world w-parody" aria-labelledby="w4">
+  <h2 id="w4">Parodien und Gäste</h2>
+  <p>Geliehene Figuren, die österreichischen Dialekt sprechen, und Brauchtumsfiguren, die in anderen Reihen auftauchen.</p>
+  <ul class="small" id="parody"></ul>
+</section>
+
+<section aria-labelledby="rel-h">
+  <h2 id="rel-h">Alle Beziehungen</h2>
+  <div class="tablebox">
+  <table>
+    <thead><tr><th>Wer</th><th>Beziehung</th><th>Wer</th><th>Grundlage</th></tr></thead>
+    <tbody id="reltable"></tbody>
+  </table>
+  </div>
+</section>
+
+<section aria-labelledby="vid-h">
+  <h2 id="vid-h">Verwendete Videos</h2>
+  <ul class="small" id="videos"></ul>
+</section>
+
+<footer>
+  <p><b>Inoffizielle Fan-Seite.</b> Kein Angebot von Manuel Cavaleras und nicht mit ihm verbunden. Alle Figuren gehören ihrem Schöpfer: <a href="https://www.youtube.com/@manuelcavaleras">youtube.com/@manuelcavaleras</a></p>
+  <p>Quellen: Titel und Beschreibungen der Videos auf YouTube, die passenden TikTok-Texte und Hashtags, Sprecherangaben in diesen Texten und die Design-Namen im Spreadshop des Kanals.</p>
+  <p>Nicht abgedeckt: alles, was nur im Video gesprochen wird. Mit Transkripten oder Namen aus den Videos lassen sich die Lücken schließen.</p>
+</footer>
+</div>
+
+<script>
+const S='<span class="pill sure">Belegt</span>', G='<span class="pill guess">Vermutet</span>';
+const chars=[
+ {w:'tyrol',n:'Herbert Brunnthaler',i:'HB',sure:1,role:'Moderator der Österreich-Show',aka:['Brunnthaler Herbert','Herbert'],
+  d:'Tiroler, der in stark gefärbtem Englisch die österreichische Kultur vorstellt. Im Dialekt wird er mit dem Nachnamen zuerst genannt.',
+  r:['Verheiratet mit Hildegard','Freund von Alfons aus Wien','Nachbar von Bärbel Unterranacher','Besitzer der Kuh Heidi (vermutet)'],
+  s:'Video proof that Austrians are friendly · The Magic Tunes of Austria · The Krampus is coming to town · The 6 rules for surviving Vienna · Oster-Folge'},
+ {w:'tyrol',n:'Hildegard (Brunnthaler)',i:'H',sure:1,role:'Herberts Frau und Co-Moderatorin',aka:[],
+  d:'Wird als seine „lovely wife“ vorgestellt, die bei der Show hilft. Ihr Nachname steht nirgends; Brunnthaler ist wegen der Ehe angenommen.',
+  r:['Verheiratet mit Herbert Brunnthaler'],s:'Video proof that Austrians are friendly'},
+ {w:'tyrol',n:'Heidi',i:'H',sure:1,role:'Die Kuh',aka:['die Katzenkuh','die miauende Kuh'],
+  d:'Eine Kuh, die miaut. Laut Merch „was raised by a cat“.',
+  r:['Lebt bei Herbert und Hildegard (vermutet)'],s:'Friendly-Folge · Oster-Folge · Merch'},
+ {w:'tyrol',n:'Bärbel Unterranacher',i:'BU',sure:1,role:'Das Nachbarsmädchen',aka:['Unterranacher Bärbel','Bärbel'],
+  d:'Kriecht durch ein Loch in Herberts Aufnahme und übernimmt die Oster-Folge mit ihrem englischen Referat über den Osterhasen, den sie zur Rede stellen will. Gesprochen von Nina Forcher.',
+  r:['Nachbarin von Herbert Brunnthaler','Tochter eines namenlosen Vaters, der ihr die Hasenfallen verboten hat','Jagt den Osterhasen'],s:'Oster-Folge'},
+ {w:'tyrol',n:'Alfons',i:'A',sure:1,role:'Herberts Freund aus Wien',aka:[],
+  d:'Gastexperte mit den sechs Regeln zum Überleben in Wien, allen voran das Wiener Grantler-Gesicht. Kein Nachname genannt.',
+  r:['Freund von Herbert Brunnthaler'],s:'The 6 rules for surviving Vienna'},
+
+ {w:'village',n:'Kofler-Bauer',i:'KB',sure:1,role:'Der Steuersünder',aka:['Koflerbauer','der Steuersünder'],
+  d:'Bauer am Kofler-Hof, „Kofler“ ist also der Hofname. Erklärt seinem Sohn, dass das Gewehr im Kinderzimmer nur zwei Schuss hat. Vorname nicht genannt.',
+  r:['Vater vom „Bua“ (Sohn, namenlos)','Ärger mit Pater Vinzenz wegen der Kirchensteuer (vermutet)'],s:'Der Steuersünder / The Tax Collector'},
+ {w:'village',n:'Pater Vinzenz',i:'PV',sure:0,role:'Dorfpfarrer',aka:['der Pfarrer'],
+  d:'Steht auf dem Steuersünder-Merch neben dem Koflerbauer und ist bei Dorfmedizin wieder als Pfarrer verschlagwortet. Vermutlich der „Tax Collector“ des englischen Titels.',
+  r:['Gegenspieler des Kofler-Bauern','Hilft mit Irmgard dem gestürzten Wanderer (vermutet)'],s:'Der Steuersünder · Dorfmedizin'},
+ {w:'village',n:'Irmgard',i:'I',sure:0,role:'Kräuterhexe',aka:['die Kräuterhexe'],
+  d:'Gehört zu den „richtigen Leuten“, die einen verletzten Wanderer finden und sein gebrochenes Bein mit Pendel und Globuli behandeln. Name und Spitzname stammen aus den Hashtags.',
+  r:['Behandelt den namenlosen Wanderer','Arbeitet mit Pater Vinzenz zusammen (vermutet)'],s:'Dorfmedizin'},
+ {w:'village',n:'Sepp Kruatlhuba',i:'SK',sure:1,role:'Gegenstand des Dorfgerüchts',aka:['Kruatlhuba Sepp','da Sepp'],
+  d:'Den hat es bei der Stallerbrückn runtergeschmissen, und das ganze Dorf hofft, dass es niemand gesehen hat. Sepp ist die Kurzform von Josef. Kruatlhuba könnte ein Hausname sein.',
+  r:['Über ihn tratschen die „Kennsch mi jo, i sog nix“-Dörfler','Im Gerücht kommen auch „der feine Herr Magister“ und ein „Referatsleiter Gartenzaunsanierung“ vor (Merch-Titel, namenlos)'],s:'Dorfgerücht (Kennsch mi jo)'},
+ {w:'village',n:'Ploner',i:'P',sure:1,role:'Hutkunde',aka:['da Plona','da Bua vom Plona (vermutet)'],
+  d:'Sucht sich ausgerechnet den einen Hut aus, der nicht zum Verkauf steht, und gibt nicht nach. Nur Nachname bekannt. Gesprochen von Peter Hafele.',
+  r:['Kunde von Gumpitsch','Möglicherweise die Familie hinter Peppi Raffls „Plonaspeck“ (vermutet)'],s:'Hutladen-Kurzfilm'},
+ {w:'village',n:'Gumpitsch',i:'G',sure:1,role:'Alter Ladenbesitzer',aka:['der alte Gumpitsch'],
+  d:'Führt den Hutladen und hütet den „Original Stieglitza Jagahuat“. Nur Nachname bekannt. Gesprochen von Manuel Cavaleras.',
+  r:['Verkauft Ploner Hüte, oder eben nicht'],s:'Hutladen-Kurzfilm'},
+ {w:'village',n:'Peppi Raffl',i:'PR',sure:1,role:'Gast aus Tirol',aka:['Peppi'],
+  d:'Besonderer Gast in Ediths Küche, bringt einen original Plonaspeck mit. Peppi ist selbst schon ein Kosename, meist für Josef; sein amtlicher Vorname steht nirgends.',
+  r:['Gast bei Edith in Wien','Bringt Speck mit Bezug zum Namen Ploner (vermutet)'],s:'Ediths Backstube Folge 3'},
+
+ {w:'vienna',n:'Edith',i:'E',sure:1,role:'Die Backfee',aka:['die liebe Edith','Backfee Edith','Zuckerfee'],
+  d:'Moderiert eine Backsendung mit bedenklichen Zuckermengen: Weihnachtskekse in zwei Minuten, ein Rieseneislutscher, eine Tiroler Speckjause. Kein Nachname genannt.',
+  r:['Kümmert sich um Burli („ihr Burli“)','Gastgeberin von Peppi Raffl'],s:'Ediths Backstube Folge 1 bis 3'},
+ {w:'vienna',n:'Burli',i:'B',sure:1,role:'Ediths Bub',aka:['du Lauser'],
+  d:'Burli heißt auf Wienerisch „kleiner Bub“, ist also ein Spitzname; sein richtiger Name fällt nie. Ein „leicht nervös Burli“ steht auch auf dem Merch zum Sonnen-Interview. Ob das derselbe Bub ist oder nur dieselbe Anrede, bleibt offen.',
+  r:['Ediths Bub und Küchenhelfer'],s:'Ediths Backstube Folge 2 · Merch'},
+ {w:'vienna',n:'Dr. Eberhard Zupffinger',i:'EZ',sure:1,role:'Beauty-Doc',aka:['der Nasenzupfer','der Beauty-Doc'],
+  d:'Schönheitschirurg, dessen Methode zum Namen passt.',
+  r:['Chirurg von Frau Simacek'],s:'Der Nasenzupfer'},
+ {w:'vienna',n:'Frau Simacek',i:'S',sure:1,role:'Patientin',aka:[],
+  d:'Möchte endlich eine ganz normale Nase haben. Vorname nicht genannt.',
+  r:['Patientin von Dr. Eberhard Zupffinger'],s:'Der Nasenzupfer'},
+ {w:'vienna',n:'Das Hutmännchen',i:'HM',sure:1,role:'Männchen mit Hut',aka:[],
+  d:'Beschwert sich auf der Mariahilfer Straße und bekommt später sein lang ersehntes Interview mit der Sonne über Wien. Kein Eigenname genannt.',
+  r:['Interviewt die Wiener Sonne','Braucht eine Drehgenehmigung von der Wolke (Merch: „Wolke Drehgenehmigung“)'],s:'Hutmännchen auf der Mahü · Interview mit der Wiener Sonne 1 und 2'},
+ {w:'vienna',n:'Die Wiener Sonne',i:'WS',sure:1,role:'Die regionale Sonne',aka:['die regionale Sonne'],
+  d:'Die für Wien zuständige Sonne, in zwei Teilen interviewt.',
+  r:['Wird vom Hutmännchen interviewt'],s:'Interview mit der Wiener Sonne'},
+ {w:'vienna',n:'Der Wiener Bub',i:'WB',sure:1,role:'Bub, der ein Samuraischwert will',aka:[],
+  d:'Ihm wurde zu Weihnachten ein Samuraischwert aus Japan versprochen, und er bekommt es nicht. Namenlos.',
+  r:['Trifft den deutschen Hipster auf Wien-Besuch im Advent','Hat mit dem Weihnachtsmann zu tun'],s:'Das Versprechen Teil 1 bis 3'},
+ {w:'vienna',n:'Der deutsche Hipster',i:'DH',sure:1,role:'Tourist im Advent',aka:[],
+  d:'Ein deutscher Besucher, mit dessen Wien-Reise die Weihnachtsgeschichte beginnt. Namenlos.',
+  r:['Begegnet dem Wiener Bub'],s:'Das Versprechen Teil 1'},
+ {w:'vienna',n:'Der neue Präsident',i:'NP',sure:1,role:'Frisch gewählter Präsident',aka:[],
+  d:'Gibt nach einer Woche im Amt einen Statusbericht über seine Wahlversprechen. Das Merch zu diesen Videos nennt einen „Flötenbernhard“; wer das ist, bleibt ohne Video unklar.',
+  r:['Verbindung zu „Flötenbernhard“ (vermutet)'],s:'Der neue Präsident Teil 1 und 2'},
+ {w:'vienna',n:'Der Bewerbungsbetrüger',i:'BB',sure:1,role:'Betrüger im Bewerbungswesen',aka:[],
+  d:'Schleust durch offene Bürofenster heimlich neue Mitarbeiter ein. In den Hashtags steht ein Kevin, vermutlich Kollege oder Opfer.',
+  r:['Kevin (Rolle unbekannt, vermutet)'],s:'Der Bewerbungsbetrüger'},
+ {w:'vienna',n:'Der Monologiker',i:'M',sure:1,role:'Redner auf der Donauinsel',aka:['der Donauinsulaner'],
+  d:'Eine Sommerbegegnung an der Donau mit einem Mann, der allein redet.',
+  r:[],s:'Der Monologiker'},
+ {w:'vienna',n:'Da Kusön',i:'K',sure:0,role:'Der Cousin',aka:['„Hallo, I bin da Kusön!“'],
+  d:'Figur mit Spruch aus Internetz-TV, der Sendung, die erklärt, wie man das Internetz neu startet.',
+  r:[],s:'Internetz-TV'}
+];
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+document.querySelectorAll('.cards').forEach(box=>{
+  box.innerHTML=chars.filter(c=>c.w===box.dataset.world).map(c=>`
+  <article class="card">
+    <div class="top"><div class="avatar" aria-hidden="true">${esc(c.i)}</div><div class="who"><h3>${esc(c.n)}</h3><div>${c.sure?S:G}</div></div></div>
+    <p class="role">${esc(c.role)}</p>
+    ${c.aka.length?`<ul class="aka">${c.aka.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`:''}
+    <p>${esc(c.d)}</p>
+    ${c.r.length?`<ul class="rel">${c.r.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`:''}
+    <div class="src">Zu sehen in: ${esc(c.s)}</div>
+  </article>`).join('');
+});
+const parody=[
+ ['Mittelerde Österreich','Gandalf, Frodo, Gimli, Aragorn, Boromir und Pippin („der närrische Tuk“) streiten vor den Toren von Moria. Frodo will wissen, warum das Türöffnen so lange dauert.'],
+ ['Samm','Aus dem Merch-Spruch „Der Samm muss brunzen“. Sehr wahrscheinlich Sam aus der Mittelerde-Parodie (vermutet).'],
+ ['Matrix, entfallene Szene','Morpheus arbeitet eine Reihe von Kandidaten ab, um den echten Neo zu finden.'],
+ ['Nikolaus und Krampus','Der heilige Nikolaus und sein teuflischer Begleiter, erklärt von Herbert.'],
+ ['Der Osterhase','Das Ziel von Bärbel Unterranacher. Laut Merch hat sie ihn gefunden.'],
+ ['Der Weihnachtsmann','Kommt in Das Versprechen vor („Zwa Sekunden, Weihnochtsmonn“).'],
+ ['Gimmlitzer','Nur aus dem Merch-Spruch „Bist du da Gimmlitzer?“ bekannt. Video nicht zugeordnet.']
+];
+document.getElementById('parody').innerHTML=parody.map(p=>`<li><b>${esc(p[0])}</b><br>${esc(p[1])}</li>`).join('');
+const rels=[
+ ['Herbert Brunnthaler','verheiratet mit','Hildegard',1],
+ ['Herbert Brunnthaler','Freund von','Alfons',1],
+ ['Herbert Brunnthaler','Nachbar von','Bärbel Unterranacher',1],
+ ['Herbert Brunnthaler','Besitzer von','Kuh Heidi',0],
+ ['Bärbel Unterranacher','Tochter von','ihrem namenlosen Vater',1],
+ ['Bärbel Unterranacher','jagt','den Osterhasen',1],
+ ['Kofler-Bauer','Vater von','dem Bua',1],
+ ['Kofler-Bauer','Kirchensteuer-Streit mit','Pater Vinzenz',0],
+ ['Pater Vinzenz','versorgt den Wanderer mit','Irmgard',0],
+ ['Ploner','Kunde von','Gumpitsch',1],
+ ['Peppi Raffl','Gast bei','Edith',1],
+ ['Peppi Raffl','bringt Speck von','Ploner',0],
+ ['Edith','kümmert sich um','Burli',1],
+ ['Frau Simacek','Patientin von','Dr. Eberhard Zupffinger',1],
+ ['Das Hutmännchen','interviewt','Die Wiener Sonne',1],
+ ['Der Wiener Bub','trifft','Der deutsche Hipster',0],
+ ['Der neue Präsident','Verbindung zu','Flötenbernhard',0]
+];
+document.getElementById('reltable').innerHTML=rels.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td><b>${esc(r[2])}</b></td><td>${r[3]?S:G}</td></tr>`).join('');
+const vids=[
+ ['Video proof that Austrians are very friendly','shorts/U7QTmT0ZP1c'],
+ ['The Magic Tunes of Austria','watch?v=uy_kC4YfXrs'],
+ ['The Krampus is coming to town','watch?v=ScYQVkO786s'],
+ ['Der Steuersünder / The Tax Collector','watch?v=eRgjMVUvsvk'],
+ ['Dorfgerücht (Kennsch mi jo)','watch?v=DOXIA9J9YKU'],
+ ['What people in Austria talk about at the pub','watch?v=DSnUaMiR4zQ'],
+ ['Weihnachtskekse, Ediths Backstube','watch?v=vEpO0QvrAXQ'],
+ ['Rieseneislutscher, Ediths Backstube 2','watch?v=u79Mtt3pFuc'],
+ ['Das Versprechen Teil 1','watch?v=GFdnZlaqLac'],
+ ['Das Versprechen Teil 2','watch?v=VK5zAbNI3I8'],
+ ['Das Versprechen Teil 3','watch?v=qEE1OfSJU44'],
+ ['Der Bewerbungsbetrüger','watch?v=2pEoJgc4FQY'],
+ ['Der Monologiker','watch?v=eHCiLy_xIQU'],
+ ['Internetz-TV','watch?v=NVnAmycPVLE'],
+ ['Mittelerde Österreich','watch?v=mEDgVgxQdAo']
+];
+document.getElementById('videos').innerHTML=vids.map(v=>`<li><a href="https://www.youtube.com/${v[1]}">${esc(v[0])}</a></li>`).join('')
+ +'<li>Ebenfalls verwendet, ohne gefundenen YouTube-Link: The 6 rules for surviving Vienna, die Oster-Folge, Der Nasenzupfer, Dorfmedizin, der Hutladen-Kurzfilm, Ediths Backstube 3, Interview mit der Wiener Sonne 1 und 2, Der neue Präsident 1 und 2, das Hutmännchen auf der Mariahilfer Straße, die Matrix-Szene.</li>';
+</script>
+</body>
+</html>
