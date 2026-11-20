@@ -9,7 +9,9 @@ Unofficial fan overview of the characters in the cartoons of the YouTube channel
 - `index.html` is the whole site: the data lives in the `V` (videos), `chars`, `mentioned` and `rels` constants in its script. Every file in `figuren/` must be the `img` of one entry in `chars`.
 - Round portraits (parade and cards) load `figuren/thumb/`, the lightbox loads the full still. After adding or changing a still run `tools/thumbs.sh`; letting the browser shrink the full stills makes the thin lines look broken.
 - The header must keep the "Inoffizielle Fan-Seite" badge and the link to the real channel.
+- The footer credits the maker as "Tunefish" with links to the GitHub profile and this repo. Never put the user's real name or mail address on the page.
 - The look is a fixed dark space theme (star canvas `#sky`, planets, orbits). All motion must stay switched off under `prefers-reduced-motion`.
+- Map nodes, the parade portraits and the profile modal are tied together by name: the `.nm` text of a map node must equal the `n` of an entry in `chars`, otherwise the node does not open a profile. When `rels` gains an important relation, add it to the map as well.
 - Do not put a CSS `filter` on the map's `.edge` paths: straight lines have an empty bounding box and disappear.
 - Mark every fact on the page as "belegt" (said or shown in a video, description or merch) or "vermutet". Names that only come from auto-generated captions count as "vermutet".
 

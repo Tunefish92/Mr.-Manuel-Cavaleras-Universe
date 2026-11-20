@@ -22,6 +22,10 @@ Stand 20. November 2026. Grundlage sind die Untertitel aller Videos des Kanals, 
 
 Dies ist eine Fan-Seite und kein Angebot von Manuel Cavaleras. Alle Figuren gehören ihrem Schöpfer.
 
+## Von wem
+
+Gemacht von [Tunefish](https://github.com/Tunefish92), einem Fan der Videos, mit KI-Unterstützung (Claude Code).
+
 ## Technik
 
 Eine statische Seite (`index.html` und die Bilder in `figuren/`) ohne Build-Schritt, veröffentlicht über GitHub Pages aus dem Branch `main`.
