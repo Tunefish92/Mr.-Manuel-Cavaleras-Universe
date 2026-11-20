@@ -209,6 +209,31 @@ svg .lab{stroke:#0d1330}
 tbody tr:hover{background:rgba(140,160,255,.12)}
 .lb-frame{box-shadow:0 0 0 2px rgba(190,205,255,.5),0 0 90px 10px rgba(120,150,255,.55)}
 footer a{color:var(--parody)}
+/* Kopf und Fuß mittig, Hinweis auf die Fan-Seite und Link zum Kanal ganz oben. */
+header{align-items:center;text-align:center;gap:16px;padding-top:8px}
+header p{max-width:60ch;margin-inline:auto;font-size:1.08rem}
+.fanbadge{display:inline-flex;align-items:center;gap:10px;font:800 .95rem/1 var(--display);letter-spacing:.16em;text-transform:uppercase;color:#060918;background:linear-gradient(90deg,var(--village),var(--vienna));padding:10px 18px;border-radius:999px;box-shadow:0 0 26px -4px var(--village)}
+.fanbadge::before{content:"★"}
+.yt{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font:700 1rem var(--body);color:var(--ink);padding:10px 18px;border-radius:999px;border:1.5px solid var(--vienna);background:rgba(255,143,143,.12);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);transition:transform .2s,background .2s,box-shadow .2s}
+.yt:hover{transform:translateY(-2px) scale(1.03);background:rgba(255,143,143,.26);box-shadow:0 0 26px -6px var(--vienna)}
+.yt svg{width:26px;height:26px;flex:none}
+.yt small{display:block;font-weight:400;font-size:.8rem;color:var(--muted)}
+.yt span{text-align:left;line-height:1.2}
+.stats{justify-content:center}
+.parade{align-self:stretch}
+.parade .track{gap:18px}
+.parade a{width:92px;height:92px}
+.parade img{object-position:50% 0}
+.avatar img{object-position:50% 0}
+.jump{justify-content:center}
+.note{max-width:78ch;margin-inline:auto;width:100%}
+.legend{justify-content:center;text-align:center}
+section>h2,.hint{text-align:center}
+.world>h2{justify-content:center}
+.world>p{margin-inline:auto;text-align:center}
+.small{justify-content:center}
+footer{text-align:center}
+footer p{margin-inline:auto}
 @media (prefers-reduced-motion: reduce){.avatar::before{display:none}}
 </style>
 </head>
@@ -218,9 +243,13 @@ footer a{color:var(--parody)}
 <div class="wrap">
 
 <header>
-  <span class="eyebrow">YouTube · @manuelcavaleras · Figurenübersicht</span>
+  <span class="fanbadge">Inoffizielle Fan-Seite</span>
   <h1>Mr. Manuel Cavaleras Universe</h1>
   <p>Ein Weltall aus vier Welten. Alle Figuren aus den Tiroler und Wiener Zeichentrick-Kurzfilmen, jede mit Bild: voller Name, wo es einen gibt, Spitznamen und wer mit wem zusammenhängt.</p>
+  <a class="yt" href="https://www.youtube.com/@manuelcavaleras" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="5" width="22" height="14" rx="4.5" fill="#ff4d4d"/><path d="M10 9v6l5.2-3z" fill="#fff"/></svg>
+    <span>Zum echten Kanal: @manuelcavaleras<small>Die Originalvideos von Manuel Cavaleras auf YouTube</small></span>
+  </a>
   <div class="stats">
     <span class="stat"><b id="st-all"></b> Figuren mit Bild</span>
     <span class="stat"><b id="st-vid"></b> Videos ausgewertet</span>
@@ -621,7 +650,7 @@ const vlink=k=>`<a href="https://www.youtube.com/watch?v=${V[k][1]}">${esc(V[k][
 document.querySelectorAll('.cards').forEach(box=>{
   box.innerHTML=chars.filter(c=>c.w===box.dataset.world).map(c=>`
   <article class="card">
-    <div class="top"><a class="avatar" href="figuren/${c.img}.jpg"><img src="figuren/${c.img}.jpg" alt="Standbild: ${esc(c.n)}" width="76" height="76" loading="lazy"></a><div class="who"><h3>${esc(c.n)}</h3><div>${c.sure?S:G}</div></div></div>
+    <div class="top"><a class="avatar" href="figuren/${c.img}.jpg"><img src="figuren/thumb/${c.img}.jpg" alt="Standbild: ${esc(c.n)}" width="76" height="76" loading="lazy"></a><div class="who"><h3>${esc(c.n)}</h3><div>${c.sure?S:G}</div></div></div>
     <p class="role">${esc(c.role)}</p>
     ${c.aka.length?`<ul class="aka">${c.aka.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`:''}
     <p>${esc(c.d)}</p>
@@ -723,7 +752,7 @@ document.querySelectorAll('.stat b').forEach(b=>{const end=+b.textContent;if(cal
   const t0=performance.now();const step=now=>{const p=Math.min(1,(now-t0)/1400);b.textContent=Math.round(end*(1-Math.pow(1-p,3)));if(p<1){requestAnimationFrame(step);}};requestAnimationFrame(step);});
 
 /* Figurenparade: jede dritte Figur, doppelt für die Endlosschleife. */
-(()=>{const pick=chars.filter((c,i)=>i%3===0);const row=pick.map((c,i)=>`<a href="#c-${c.img}" style="--i:${i}" tabindex="-1"><img src="figuren/${c.img}.jpg" alt="" width="68" height="68"></a>`).join('');
+(()=>{const pick=chars.filter((c,i)=>i%3===0);const row=pick.map((c,i)=>`<a href="#c-${c.img}" style="--i:${i}" tabindex="-1"><img src="figuren/thumb/${c.img}.jpg" alt="" width="92" height="92"></a>`).join('');
   document.getElementById('parade').innerHTML=row+row;})();
 
 /* Karten bekommen eine Sprungmarke; Klick in der Parade springt hin und lässt die Karte kurz aufleuchten. */
