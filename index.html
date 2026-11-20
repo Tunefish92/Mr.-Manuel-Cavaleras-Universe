@@ -68,6 +68,7 @@ svg .colh{font:700 13px var(--display);letter-spacing:.08em;text-transform:upper
 .n-vienna rect{fill:var(--tint-vienna);stroke:var(--vienna)}
 svg g rect{stroke-width:1.8}
 .world{border-top:5px solid var(--c);padding-top:14px}
+.world{scroll-margin-top:64px}
 .world > p{margin:0;color:var(--muted);max-width:66ch}
 .w-tyrol{--c:var(--tyrol);--t:var(--tint-tyrol)}
 .w-village{--c:var(--village);--t:var(--tint-village)}
@@ -77,7 +78,6 @@ svg g rect{stroke-width:1.8}
 .card{background:var(--surface);border:1.5px solid var(--line);border-left:6px solid var(--c);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px}
 .card .top{display:flex;gap:10px;align-items:center}
 .card .top .who{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-.avatar{flex:none;width:52px;height:52px;border-radius:50%;background:var(--t);border:2px solid var(--c);color:var(--c);display:grid;place-items:center;font:800 1.15rem var(--display)}
 .card .role{color:var(--c);font-weight:600;font-size:.95rem;margin:0}
 .aka{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
 .aka li{background:var(--t);border-radius:4px;padding:2px 8px;font-size:.9rem}
@@ -97,32 +97,158 @@ th{font:700 .8rem var(--body);letter-spacing:.08em;text-transform:uppercase;colo
 tr:last-child td{border-bottom:0}
 footer{color:var(--muted);font-size:.9rem;border-top:1.5px solid var(--line);padding-top:16px}
 footer p{margin:0 0 6px;max-width:75ch}
+/* Bewegung: Figurenparade, einfliegende Karten, Neigung zur Maus, Bild-Zoom, sich zeichnende Karte. Alles aus bei prefers-reduced-motion. */
+.progress{position:fixed;left:0;top:0;height:4px;width:100%;transform-origin:0 50%;transform:scaleX(var(--p,0));background:linear-gradient(90deg,var(--tyrol),var(--village),var(--vienna),var(--parody));z-index:30}
+h1 span{display:inline-block;animation:drop .7s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(var(--i)*45ms)}
+@keyframes drop{from{opacity:0;transform:translateY(-.6em) rotate(-8deg) scale(.7)}}
+.stat b{display:inline-block;min-width:1.4ch;font-variant-numeric:tabular-nums}
+.parade{overflow:hidden;margin:4px -18px 0;padding:10px 0;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.parade .track{display:flex;gap:14px;width:max-content;animation:parade 70s linear infinite}
+.parade:hover .track{animation-play-state:paused}
+.parade a{flex:none;width:68px;height:68px;border-radius:50%;overflow:hidden;background:#fafafa;border:2px solid var(--line);animation:bob 3.2s ease-in-out infinite;animation-delay:calc(var(--i)*-.37s);transition:transform .25s,border-color .25s}
+.parade a:hover{transform:scale(1.35) rotate(-4deg);border-color:var(--vienna);z-index:2}
+.parade img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;display:block}
+@keyframes parade{to{transform:translateX(-50%)}}
+@keyframes bob{50%{translate:0 -7px}}
+.jump{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.jump a{text-decoration:none;font:600 .9rem var(--body);padding:5px 12px;border-radius:999px;border:1.5px solid var(--c);color:var(--c);background:var(--surface);transition:transform .2s,background .2s,color .2s}
+.jump a:hover,.jump a.on{background:var(--c);color:var(--bg);transform:translateY(-2px)}
+.jump input{flex:1;min-width:150px;font:inherit;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.jump input:focus-visible{outline:3px solid var(--vienna);outline-offset:1px}
+.jump output{font-size:.85rem;color:var(--muted)}
+.reveal{opacity:0;transform:translateY(26px) scale(.96);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.9,.3,1.2);transition-delay:calc(var(--d,0)*70ms)}
+.reveal.in{opacity:1;transform:none}
+.cards{perspective:1100px}
+.card{position:relative;overflow:hidden;transform-style:preserve-3d;will-change:transform}
+.card.in{transition:transform .18s ease-out,box-shadow .25s,opacity .6s;transition-delay:0s;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--lift,0))}
+.card.in:hover{--lift:-5px;box-shadow:0 14px 30px -14px color-mix(in srgb,var(--c) 70%,transparent);z-index:2}
+.card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--c) 22%,transparent),transparent 70%)}
+.card:hover::after{opacity:1}
+.card.gone{display:none}
+.avatar{flex:none;width:76px;height:76px;border-radius:50%;overflow:hidden;background:#fafafa;border:2px solid var(--c);display:block;cursor:zoom-in;position:relative;transition:transform .35s cubic-bezier(.2,1.5,.4,1),box-shadow .3s}
+.avatar img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;display:block;transition:transform .5s ease}
+.avatar:hover,.avatar:focus-visible{transform:scale(1.18) rotate(-3deg);box-shadow:0 0 0 5px var(--t)}
+.avatar:hover img{transform:scale(1.25)}
+.pill.sure,.pill.guess{transition:transform .2s}
+.card:hover .pill{transform:scale(1.06)}
+.small li{transition:transform .2s,border-color .2s}
+.small li:hover{transform:translateY(-3px) rotate(-.6deg);border-color:var(--ink)}
+svg .edge{stroke-dasharray:1;stroke-dashoffset:1}
+svg .edge.dash{stroke-dasharray:.03 .03;stroke-dashoffset:0;opacity:0}
+svg g[class^="n-"]{opacity:0;transform:scale(.6);transform-box:fill-box;transform-origin:center;cursor:default}
+svg .lab{opacity:0}
+.drawn .edge{transition:stroke-dashoffset 1.1s ease calc(var(--i)*90ms + .5s);stroke-dashoffset:0}
+.drawn .edge.dash{transition:opacity .8s ease 1.4s;opacity:1}
+.drawn g[class^="n-"]{transition:opacity .4s ease calc(var(--i)*55ms),transform .5s cubic-bezier(.2,1.6,.4,1) calc(var(--i)*55ms);opacity:1;transform:none}
+.drawn g[class^="n-"]:hover{transform:scale(1.07)}
+.drawn .lab{transition:opacity .6s ease 1.6s;opacity:1}
+tbody tr{transition:background .2s}
+tbody tr:hover{background:var(--tint-village)}
+dialog#lb{border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh;width:100vw;height:100vh;overflow:hidden;color:#fff}
+dialog#lb::backdrop{background:rgba(10,14,12,.86);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fade .3s both}
+dialog#lb.closing::backdrop{animation:fade .22s reverse both}
+@keyframes fade{from{opacity:0}}
+.lb-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
+.lb-frame{width:min(86vw,74vh);height:min(86vw,74vh);border-radius:14px;overflow:hidden;background:#fafafa;cursor:zoom-in;box-shadow:0 30px 80px -20px #000;touch-action:none}
+.lb-frame.zoomed{cursor:zoom-out}
+.lb-frame img{width:100%;height:100%;object-fit:contain;display:block;transition:transform .35s ease;transform-origin:var(--ox,50%) var(--oy,50%)}
+.lb-frame.zoomed img{transform:scale(2.6)}
+.lb-cap{text-align:center;max-width:60ch;animation:rise .45s .12s both}
+.lb-cap b{font:800 1.5rem var(--display);display:block}
+.lb-cap span{opacity:.8}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.lb-btn{position:absolute;border:0;border-radius:50%;width:48px;height:48px;font:700 1.4rem var(--display);background:rgba(255,255,255,.14);color:#fff;cursor:pointer;transition:transform .2s,background .2s}
+.lb-btn:hover{background:rgba(255,255,255,.3);transform:scale(1.12)}
+.lb-btn:focus-visible{outline:3px solid #fff}
+#lb-x{top:14px;right:14px}#lb-p{left:12px;top:50%;margin-top:-24px}#lb-n{right:12px;top:50%;margin-top:-24px}
+.lb-hint{font-size:.82rem;opacity:.6}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+  svg .edge{stroke-dashoffset:0}svg .edge.dash,svg .lab,svg g[class^="n-"]{opacity:1;transform:none}
+}
+/* Weltall: ein fester dunkler Look. Sternenhimmel auf dem Canvas, Nebel als Verläufe, Welten als Planeten, Figuren mit Umlaufbahn. */
+html:root:root{color-scheme:dark;
+  --bg:#060918; --surface:rgba(18,24,52,.66); --ink:#eef1ff; --muted:#a9b2d6; --line:rgba(140,160,255,.24);
+  --tyrol:#6ee7a8; --village:#ffc670; --vienna:#ff8f8f; --parody:#8ab8ff;
+  --tint-tyrol:rgba(110,231,168,.14); --tint-village:rgba(255,198,112,.14); --tint-vienna:rgba(255,143,143,.14); --tint-parody:rgba(138,184,255,.16)}
+body{background:
+  radial-gradient(900px 600px at 12% 8%,rgba(96,70,190,.34),transparent 65%),
+  radial-gradient(800px 700px at 92% 30%,rgba(30,120,170,.26),transparent 65%),
+  radial-gradient(900px 700px at 30% 78%,rgba(170,60,120,.2),transparent 65%),
+  #060918;background-attachment:fixed}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1}
+h1{text-shadow:0 0 26px rgba(138,184,255,.6),0 0 70px rgba(150,100,255,.45)}
+.eyebrow{letter-spacing:.3em}
+.card,.small li,.stat,.mapbox,.tablebox,.jump a,.jump input{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.card{box-shadow:inset 0 0 0 1px rgba(255,255,255,.03),0 8px 30px -18px #000}
+.card.in:hover{box-shadow:0 0 0 1px var(--c),0 0 34px -6px var(--c)}
+.note{background:var(--tint-village);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.jump{background:rgba(6,9,24,.72)}
+.pill.sure{background:var(--ink);color:#060918}
+.world>h2{display:flex;align-items:center;gap:14px}
+.world>h2::before{content:"";flex:none;width:38px;height:38px;border-radius:50%;
+  background:radial-gradient(circle at 32% 30%,#fff 0,var(--c) 26%,color-mix(in srgb,var(--c) 35%,#000) 78%);
+  box-shadow:0 0 22px var(--c),inset -6px -6px 12px rgba(0,0,0,.45);animation:planet 7s ease-in-out infinite}
+.world>h2::after{content:"";width:62px;height:16px;margin-left:-64px;border-radius:50%;border:2px solid color-mix(in srgb,var(--c) 70%,transparent);transform:rotate(-18deg);flex:none;order:-1;position:relative;left:50px;pointer-events:none}
+@keyframes planet{50%{transform:translateY(-5px) scale(1.05)}}
+.world{border-top:0;padding-top:26px;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 10%,transparent),transparent 180px);border-radius:22px;padding-inline:14px;margin-inline:-14px}
+.avatar{overflow:visible;background:transparent;border:0}
+.avatar img{border-radius:50%;background:#fafafa;border:2px solid var(--c);box-shadow:0 0 18px -2px var(--c)}
+.avatar:hover img{transform:none}
+.avatar::before,.avatar::after{content:"";position:absolute;inset:-8px;border-radius:50%;pointer-events:none}
+.avatar::after{border:1.5px dashed color-mix(in srgb,var(--c) 60%,transparent);animation:spin 22s linear infinite}
+.avatar::before{background:radial-gradient(circle 4.5px at 50% 4.5px,#fff 0,var(--c) 60%,transparent 100%);animation:spin 5.5s linear infinite;animation-delay:calc(var(--o,0)*-1s);filter:drop-shadow(0 0 5px var(--c))}
+.avatar:hover::before{animation-duration:1.4s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.parade a{border-color:rgba(160,180,255,.5);box-shadow:0 0 16px rgba(138,184,255,.45)}
+svg .edge{stroke:#cfd8ff;stroke-width:2}
+svg g rect{filter:drop-shadow(0 0 7px rgba(140,170,255,.35))}
+svg .lab{stroke:#0d1330}
+tbody tr:hover{background:rgba(140,160,255,.12)}
+.lb-frame{box-shadow:0 0 0 2px rgba(190,205,255,.5),0 0 90px 10px rgba(120,150,255,.55)}
+footer a{color:var(--parody)}
+@media (prefers-reduced-motion: reduce){.avatar::before{display:none}}
 </style>
 </head>
 <body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="progress" aria-hidden="true"></div>
 <div class="wrap">
 
 <header>
   <span class="eyebrow">YouTube · @manuelcavaleras · Figurenübersicht</span>
   <h1>Mr. Manuel Cavaleras Universe</h1>
-  <p>Alle benannten Figuren aus den Tiroler und Wiener Zeichentrick-Kurzfilmen: voller Name, wo es einen gibt, Spitznamen und wer mit wem zusammenhängt.</p>
+  <p>Ein Weltall aus vier Welten. Alle Figuren aus den Tiroler und Wiener Zeichentrick-Kurzfilmen, jede mit Bild: voller Name, wo es einen gibt, Spitznamen und wer mit wem zusammenhängt.</p>
   <div class="stats">
-    <span class="stat"><b>10</b> Figuren mit Nachname oder Titel</span>
-    <span class="stat"><b>30+</b> benannte Figuren</span>
+    <span class="stat"><b id="st-all"></b> Figuren mit Bild</span>
+    <span class="stat"><b id="st-vid"></b> Videos ausgewertet</span>
+    <span class="stat"><b id="st-rel"></b> Beziehungen</span>
     <span class="stat"><b>4</b> Welten</span>
   </div>
+  <div class="parade" aria-hidden="true"><div class="track" id="parade"></div></div>
 </header>
 
-<div class="note"><p><b>So ist die Seite entstanden.</b> Ich konnte die Videos nicht abspielen und keine Transkripte abrufen. Alles hier stammt aus Videotiteln, Beschreibungen, Hashtags, Sprecherangaben und den Namen der Merch-Designs. Namen, die nur im Video gesprochen werden, fehlen. Einige Verbindungen sind begründete Vermutungen und entsprechend markiert. Die Kreise mit Initialen sind Platzhalter, keine Bilder der Figuren.</p></div>
+<nav class="jump" aria-label="Sprungmarken und Suche">
+  <a href="#w1" style="--c:var(--tyrol)">Herberts Show</a>
+  <a href="#w2" style="--c:var(--village)">Tiroler Dorf</a>
+  <a href="#w3" style="--c:var(--vienna)">Wien</a>
+  <a href="#w4" style="--c:var(--parody)">Parodien</a>
+  <input id="q" type="search" placeholder="Figur suchen …" aria-label="Figur suchen">
+  <output id="hits" for="q"></output>
+</nav>
+
+<div class="note"><p><b>So ist die Seite entstanden.</b> Grundlage sind die Untertitel aller Videos des Kanals, dazu Titel, Beschreibungen und Sprecherangaben. Die Bilder sind Standbilder aus den Videos; ein Klick auf ein Bild öffnet es groß, der Link darunter führt zum Video. Was nur aus automatisch erkannten Untertiteln oder aus dem Aussehen einer Figur geschlossen ist, steht als Vermutung da.</p></div>
 
 <div class="legend">
-  <span><span class="pill sure">Belegt</span> steht in einem Titel oder einer Beschreibung</span>
-  <span><span class="pill guess">Vermutet</span> aus Hashtags oder Merch-Namen abgeleitet</span>
+  <span><span class="pill sure">Belegt</span> im Video gesagt oder gezeigt, oder in der Beschreibung genannt</span>
+  <span><span class="pill guess">Vermutet</span> aus Aussehen, Merch-Namen oder unsicheren Untertiteln geschlossen</span>
 </div>
 
 <section aria-labelledby="map-h">
   <h2 id="map-h">Beziehungskarte</h2>
-  <p class="hint">Durchgezogene Linien sind in den Videobeschreibungen belegt, gestrichelte sind vermutet. Am Handy seitlich wischen.</p>
+  <p class="hint">Durchgezogene Linien sind in den Videos belegt, gestrichelte sind vermutet. Am Handy seitlich wischen.</p>
   <div class="mapbox">
   <svg viewBox="0 0 1000 680" role="img" aria-label="Beziehungskarte der wichtigsten Figuren. Dieselben Beziehungen stehen in der Tabelle weiter unten.">
     <text class="colh" x="140" y="30" text-anchor="middle" style="fill:var(--tyrol)">Herberts Show</text>
@@ -130,30 +256,30 @@ footer p{margin:0 0 6px;max-width:75ch}
     <text class="colh" x="850" y="30" text-anchor="middle" style="fill:var(--village)">Tiroler Dorf</text>
 
     <path class="edge" d="M140 103 V177"/>
-    <path class="edge dash" d="M140 223 V297"/>
+    <path class="edge" d="M140 223 V297"/>
     <path class="edge" d="M55 200 C10 200 10 440 55 440"/>
     <path class="edge" d="M225 200 H275"/>
     <path class="edge" d="M590 103 V157"/>
     <path class="edge" d="M675 80 H765"/>
-    <path class="edge dash" d="M850 103 V157"/>
+    <path class="edge" d="M850 103 V157"/>
     <path class="edge" d="M850 203 V257"/>
     <path class="edge" d="M590 323 V377"/>
     <path class="edge" d="M590 533 V587"/>
-    <path class="edge dash" d="M850 413 V467"/>
-    <path class="edge dash" d="M850 513 V567"/>
+    <path class="edge" d="M850 413 V467"/>
+    <path class="edge" d="M850 513 V567"/>
 
     <text class="lab" x="140" y="144" text-anchor="middle">verheiratet</text>
-    <text class="lab" x="140" y="264" text-anchor="middle">seine Kuh</text>
+    <text class="lab" x="140" y="264" text-anchor="middle">ihre Kuh</text>
     <text class="lab" x="24" y="324" text-anchor="start">Nachbarn</text>
     <text class="lab" x="250" y="190" text-anchor="middle">Freunde</text>
-    <text class="lab" x="590" y="134" text-anchor="middle">ihr Burli</text>
+    <text class="lab" x="590" y="134" text-anchor="middle">Mutter und Sohn</text>
     <text class="lab" x="720" y="70" text-anchor="middle">Gast</text>
-    <text class="lab" x="850" y="134" text-anchor="middle">bringt „Plonaspeck“</text>
+    <text class="lab" x="850" y="134" text-anchor="middle">schwärmt vom Plona-Speck</text>
     <text class="lab" x="850" y="234" text-anchor="middle">Kunde und Hutverkäufer</text>
     <text class="lab" x="590" y="354" text-anchor="middle">Patientin und Chirurg</text>
     <text class="lab" x="590" y="564" text-anchor="middle">interviewt</text>
-    <text class="lab" x="850" y="444" text-anchor="middle">Streit um Kirchensteuer</text>
-    <text class="lab" x="850" y="544" text-anchor="middle">versorgen den Wanderer</text>
+    <text class="lab" x="850" y="444" text-anchor="middle">treibt den Kirchenbeitrag ein</text>
+    <text class="lab" x="850" y="544" text-anchor="middle">bringt ihr den Touristen</text>
 
     <g class="n-tyrol"><rect x="55" y="57" width="170" height="46" rx="8"/><text class="nm" x="140" y="77" text-anchor="middle">Hildegard</text><text class="sub" x="140" y="93" text-anchor="middle">Herberts Frau</text></g>
     <g class="n-tyrol"><rect x="55" y="177" width="170" height="46" rx="8"/><text class="nm" x="140" y="197" text-anchor="middle">Herbert Brunnthaler</text><text class="sub" x="140" y="213" text-anchor="middle">Moderator</text></g>
@@ -162,17 +288,17 @@ footer p{margin:0 0 6px;max-width:75ch}
     <g class="n-vienna"><rect x="275" y="177" width="150" height="46" rx="8"/><text class="nm" x="350" y="197" text-anchor="middle">Alfons</text><text class="sub" x="350" y="213" text-anchor="middle">Freund aus Wien</text></g>
 
     <g class="n-vienna"><rect x="505" y="57" width="170" height="46" rx="8"/><text class="nm" x="590" y="77" text-anchor="middle">Edith</text><text class="sub" x="590" y="93" text-anchor="middle">die Backfee</text></g>
-    <g class="n-vienna"><rect x="505" y="157" width="170" height="46" rx="8"/><text class="nm" x="590" y="177" text-anchor="middle">Burli</text><text class="sub" x="590" y="193" text-anchor="middle">Ediths Bub</text></g>
+    <g class="n-vienna"><rect x="505" y="157" width="170" height="46" rx="8"/><text class="nm" x="590" y="177" text-anchor="middle">Burli</text><text class="sub" x="590" y="193" text-anchor="middle">Ediths Sohn</text></g>
     <g class="n-vienna"><rect x="505" y="277" width="170" height="46" rx="8"/><text class="nm" x="590" y="297" text-anchor="middle">Frau Simacek</text><text class="sub" x="590" y="313" text-anchor="middle">will eine normale Nase</text></g>
     <g class="n-vienna"><rect x="495" y="377" width="190" height="46" rx="8"/><text class="nm" x="590" y="397" text-anchor="middle">Dr. Eberhard Zupffinger</text><text class="sub" x="590" y="413" text-anchor="middle">Beauty-Doc</text></g>
-    <g class="n-vienna"><rect x="505" y="487" width="170" height="46" rx="8"/><text class="nm" x="590" y="507" text-anchor="middle">Das Hutmännchen</text><text class="sub" x="590" y="523" text-anchor="middle">grantelt durch Wien</text></g>
-    <g class="n-vienna"><rect x="505" y="587" width="170" height="46" rx="8"/><text class="nm" x="590" y="607" text-anchor="middle">Die Wiener Sonne</text><text class="sub" x="590" y="623" text-anchor="middle">die Sonne über Wien</text></g>
+    <g class="n-vienna"><rect x="505" y="487" width="170" height="46" rx="8"/><text class="nm" x="590" y="507" text-anchor="middle">Das Hutmännchen</text><text class="sub" x="590" y="523" text-anchor="middle">mit Mikrofon und Spitzhut</text></g>
+    <g class="n-vienna"><rect x="505" y="587" width="170" height="46" rx="8"/><text class="nm" x="590" y="607" text-anchor="middle">Die Wiener Sonne</text><text class="sub" x="590" y="623" text-anchor="middle">besteht auf „Herr Sonne“</text></g>
 
     <g class="n-village"><rect x="765" y="57" width="170" height="46" rx="8"/><text class="nm" x="850" y="77" text-anchor="middle">Peppi Raffl</text><text class="sub" x="850" y="93" text-anchor="middle">aus Tirol, zu Gast bei Edith</text></g>
-    <g class="n-village"><rect x="765" y="157" width="170" height="46" rx="8"/><text class="nm" x="850" y="177" text-anchor="middle">Ploner</text><text class="sub" x="850" y="193" text-anchor="middle">möchte einen Hut kaufen</text></g>
-    <g class="n-village"><rect x="765" y="257" width="170" height="46" rx="8"/><text class="nm" x="850" y="277" text-anchor="middle">Gumpitsch</text><text class="sub" x="850" y="293" text-anchor="middle">alter Ladenbesitzer</text></g>
-    <g class="n-village"><rect x="765" y="367" width="170" height="46" rx="8"/><text class="nm" x="850" y="387" text-anchor="middle">Kofler-Bauer</text><text class="sub" x="850" y="403" text-anchor="middle">der Steuersünder, hat einen Sohn</text></g>
-    <g class="n-village"><rect x="765" y="467" width="170" height="46" rx="8"/><text class="nm" x="850" y="487" text-anchor="middle">Pater Vinzenz</text><text class="sub" x="850" y="503" text-anchor="middle">Dorfpfarrer</text></g>
+    <g class="n-village"><rect x="765" y="157" width="170" height="46" rx="8"/><text class="nm" x="850" y="177" text-anchor="middle">Ploner</text><text class="sub" x="850" y="193" text-anchor="middle">„der alte Plona“</text></g>
+    <g class="n-village"><rect x="765" y="257" width="170" height="46" rx="8"/><text class="nm" x="850" y="277" text-anchor="middle">Gumpitsch</text><text class="sub" x="850" y="293" text-anchor="middle">Hutladen, Tratschkopf</text></g>
+    <g class="n-village"><rect x="765" y="367" width="170" height="46" rx="8"/><text class="nm" x="850" y="387" text-anchor="middle">Pater Vinzenz</text><text class="sub" x="850" y="403" text-anchor="middle">Dorfpfarrer</text></g>
+    <g class="n-village"><rect x="765" y="467" width="170" height="46" rx="8"/><text class="nm" x="850" y="487" text-anchor="middle">Ruppert Kofler</text><text class="sub" x="850" y="503" text-anchor="middle">der Kofler-Bauer</text></g>
     <g class="n-village"><rect x="765" y="567" width="170" height="46" rx="8"/><text class="nm" x="850" y="587" text-anchor="middle">Irmgard</text><text class="sub" x="850" y="603" text-anchor="middle">Kräuterhexe</text></g>
   </svg>
   </div>
@@ -186,20 +312,25 @@ footer p{margin:0 0 6px;max-width:75ch}
 
 <section class="world w-village" aria-labelledby="w2">
   <h2 id="w2">Das Tiroler Dorf</h2>
-  <p>Dialekt-Kurzfilme aus einer Osttiroler Pfarrgemeinde: Der Steuersünder, Dorfmedizin, Dorfgerücht und der Hutladen.</p>
+  <p>Dialekt-Kurzfilme aus Osttirol: Der Steuersünder, Dorfmedizin, Dorfgerücht, der Hutladen, der vegane Eissalon und die Reihe „Ins Hittl g'schaut“.</p>
   <div class="cards" data-world="village"></div>
 </section>
 
 <section class="world w-vienna" aria-labelledby="w3">
   <h2 id="w3">Wien</h2>
-  <p>Kurzfilme auf Wienerisch: Ediths Backstube, Der Nasenzupfer, das Hutmännchen, Das Versprechen und mehr.</p>
+  <p>Kurzfilme auf Wienerisch: Ediths Backstube, Der Nasenzupfer, das Hutmännchen, Das Versprechen, der neue Präsident und mehr.</p>
   <div class="cards" data-world="vienna"></div>
 </section>
 
 <section class="world w-parody" aria-labelledby="w4">
-  <h2 id="w4">Parodien und Gäste</h2>
-  <p>Geliehene Figuren, die österreichischen Dialekt sprechen, und Brauchtumsfiguren, die in anderen Reihen auftauchen.</p>
-  <ul class="small" id="parody"></ul>
+  <h2 id="w4">Parodien und Sonstiges</h2>
+  <p>Geliehene Figuren, die österreichischen Dialekt sprechen, und Kurzfilme außerhalb der drei Welten.</p>
+  <div class="cards" data-world="parody"></div>
+</section>
+
+<section aria-labelledby="men-h">
+  <h2 id="men-h">Nur erwähnt oder gehört, nie im Bild</h2>
+  <ul class="small" id="mentioned"></ul>
 </section>
 
 <section aria-labelledby="rel-h">
@@ -213,157 +344,477 @@ footer p{margin:0 0 6px;max-width:75ch}
 </section>
 
 <section aria-labelledby="vid-h">
-  <h2 id="vid-h">Verwendete Videos</h2>
+  <h2 id="vid-h">Ausgewertete Videos</h2>
   <ul class="small" id="videos"></ul>
 </section>
 
 <footer>
-  <p><b>Inoffizielle Fan-Seite.</b> Kein Angebot von Manuel Cavaleras und nicht mit ihm verbunden. Alle Figuren gehören ihrem Schöpfer: <a href="https://www.youtube.com/@manuelcavaleras">youtube.com/@manuelcavaleras</a></p>
-  <p>Quellen: Titel und Beschreibungen der Videos auf YouTube, die passenden TikTok-Texte und Hashtags, Sprecherangaben in diesen Texten und die Design-Namen im Spreadshop des Kanals.</p>
-  <p>Nicht abgedeckt: alles, was nur im Video gesprochen wird. Mit Transkripten oder Namen aus den Videos lassen sich die Lücken schließen.</p>
+  <p><b>Inoffizielle Fan-Seite.</b> Kein Angebot von Manuel Cavaleras und nicht mit ihm verbunden. Alle Figuren und Bilder gehören ihrem Schöpfer: <a href="https://www.youtube.com/@manuelcavaleras">youtube.com/@manuelcavaleras</a></p>
+  <p>Quellen: die Videos des Kanals mit ihren Untertiteln, Titeln und Beschreibungen, Sprecherangaben in diesen Texten und die Design-Namen im Spreadshop des Kanals. Stand: 20. November 2026.</p>
+  <p>Nicht aufgenommen: die Musikvideos, die Realfilme von 2005 bis 2009 und „Wienliebe“, das aus fremden Fernsehausschnitten besteht.</p>
 </footer>
 </div>
 
+<dialog id="lb" aria-label="Großansicht">
+  <div class="lb-in">
+    <div class="lb-frame"><img id="lb-img" src="" alt=""></div>
+    <div class="lb-cap"><b id="lb-name"></b><span id="lb-role"></span></div>
+    <div class="lb-hint">Ins Bild klicken für die Lupe · Pfeiltasten blättern · Esc schließt</div>
+  </div>
+  <button class="lb-btn" id="lb-p" aria-label="Vorige Figur">‹</button>
+  <button class="lb-btn" id="lb-n" aria-label="Nächste Figur">›</button>
+  <button class="lb-btn" id="lb-x" aria-label="Schließen">×</button>
+</dialog>
+
 <script>
 const S='<span class="pill sure">Belegt</span>', G='<span class="pill guess">Vermutet</span>';
+/* Videos, auf die sich Karten und Liste beziehen: Kürzel -> [Titel, YouTube-ID]. */
+const V={
+ welcome:['Welcome to Austria','AVHiDkdRU2o'], tunes:['The Magic Tunes of Austria','uy_kC4YfXrs'],
+ vienna6:['6 Rules for Surviving Vienna','bEkUqRMPC-Y'], krampus:['The Krampus is coming to town','ScYQVkO786s'],
+ easter:['The Easter Bunny isn\'t coming this year','CkXS4EcP5DI'],
+ steuer:['Der Steuersünder','eRgjMVUvsvk'], medizin:['Dorfmedizin','RAwUqTacQ2Q'], geruecht:['Dorfgerücht (Kennsch mi jo)','DOXIA9J9YKU'],
+ hut:['Der Hut-Handel','jsTNGdo325k'], eis:['Veganer Eissalon eröffnet in Osttirol','hhypLGsWdDo'],
+ hittl3:['Ins Hittl g\'schaut 3: Vater und Sohn','hrksmPMyZv4'], hittl4:['Ins Hittl g\'schaut 4: Das Alm-Date','k4j5zL1D4zw'],
+ hittl5:['Ins Hittl g\'schaut 5: Die Stadträtin','DXJkXea-Dto'], krippe:['Ins Hittl g\'schaut Weihnachts-Special','oFtXhxzy7Ps'],
+ alm:['Almgespräch','umUtYTdiu5k'], thema:['Gesprächsthema Nummer 1 in Tirol','DSnUaMiR4zQ'], telefon:['Telefonieren auf Österreichisch','GSViF4tf-Fc'],
+ edith1:['Ediths Backstube 1: Weihnachtskekse','vEpO0QvrAXQ'], edith2:['Ediths Backstube 2: Rieseneislutscher','u79Mtt3pFuc'], edith3:['Ediths Backstube 3: Brettljause','1DG7AEGVHt4'],
+ nase:['Der Nasenzupfer','4u9B11_hcTc'], mahue:['Der Hutkomplex','FkEaFnrojj8'], sonne:['Interview mit der Wiener Sonne','fgwOof1BNW4'],
+ monolog:['Der Monologiker','eHCiLy_xIQU'], v1:['Das Versprechen Teil 1','GFdnZlaqLac'], v2:['Das Versprechen Teil 2','VK5zAbNI3I8'], v3:['Das Versprechen Teil 3','qEE1OfSJU44'],
+ praes:['Der Neue Präsident: Wahlversprechen Update','Y7g-kYyZwcU'], bewerb:['Der Bewerbungsbetrüger','2pEoJgc4FQY'], inet:['Internetz-TV','NVnAmycPVLE'],
+ polizei:['Polizeieinsatz in Wien','btlciZeIMhQ'], vogel:['Der Vogel','H7qlJxEevK8'], klo:['Klomandl','zG3BrX0zlWI'],
+ moria:['Mittelerde Österreich','mEDgVgxQdAo'], matrix:['If Neo was Austrian','jRNszgW0rD0'], carl:['Nomad Carl','wNMe8qZYTXM'], ritter:['Ritter gegen Bogenschützen','LE26JHP8C84']
+};
+/* Figuren: w Welt, n Name, img Datei in figuren/, sure belegt?, role, aka Spitznamen, d Beschreibung, r Beziehungen, v Videos. */
 const chars=[
- {w:'tyrol',n:'Herbert Brunnthaler',i:'HB',sure:1,role:'Moderator der Österreich-Show',aka:['Brunnthaler Herbert','Herbert'],
-  d:'Tiroler, der in stark gefärbtem Englisch die österreichische Kultur vorstellt. Im Dialekt wird er mit dem Nachnamen zuerst genannt.',
-  r:['Verheiratet mit Hildegard','Freund von Alfons aus Wien','Nachbar von Bärbel Unterranacher','Besitzer der Kuh Heidi (vermutet)'],
-  s:'Video proof that Austrians are friendly · The Magic Tunes of Austria · The Krampus is coming to town · The 6 rules for surviving Vienna · Oster-Folge'},
- {w:'tyrol',n:'Hildegard (Brunnthaler)',i:'H',sure:1,role:'Herberts Frau und Co-Moderatorin',aka:[],
-  d:'Wird als seine „lovely wife“ vorgestellt, die bei der Show hilft. Ihr Nachname steht nirgends; Brunnthaler ist wegen der Ehe angenommen.',
-  r:['Verheiratet mit Herbert Brunnthaler'],s:'Video proof that Austrians are friendly'},
- {w:'tyrol',n:'Heidi',i:'H',sure:1,role:'Die Kuh',aka:['die Katzenkuh','die miauende Kuh'],
-  d:'Eine Kuh, die miaut. Laut Merch „was raised by a cat“.',
-  r:['Lebt bei Herbert und Hildegard (vermutet)'],s:'Friendly-Folge · Oster-Folge · Merch'},
- {w:'tyrol',n:'Bärbel Unterranacher',i:'BU',sure:1,role:'Das Nachbarsmädchen',aka:['Unterranacher Bärbel','Bärbel'],
-  d:'Kriecht durch ein Loch in Herberts Aufnahme und übernimmt die Oster-Folge mit ihrem englischen Referat über den Osterhasen, den sie zur Rede stellen will. Gesprochen von Nina Forcher.',
-  r:['Nachbarin von Herbert Brunnthaler','Tochter eines namenlosen Vaters, der ihr die Hasenfallen verboten hat','Jagt den Osterhasen'],s:'Oster-Folge'},
- {w:'tyrol',n:'Alfons',i:'A',sure:1,role:'Herberts Freund aus Wien',aka:[],
+ {w:'tyrol',n:'Herbert Brunnthaler',img:'herbert-brunnthaler',sure:1,role:'Moderator der Österreich-Show',aka:['Brunnthaler Herbert'],
+  d:'Tiroler, der in stark gefärbtem Englisch die österreichische Kultur vorstellt. Er stellt sich mit dem Nachnamen zuerst vor. War 1985 Krampus-Wurf-Champion.',
+  r:['Verheiratet mit Hildegard','Hält die Kuh Heidi','Freund von Alfons aus Wien','Nachbar von Bärbel Unterranacher'],v:['welcome','tunes','vienna6','krampus','easter']},
+ {w:'tyrol',n:'Hildegard',img:'hildegard',sure:1,role:'Herberts Frau',aka:[],
+  d:'Steht in jeder Folge neben der Kuh und richtet Herbert vor der Krampus-Vorführung die Maske. Ein Nachname fällt nie.',
+  r:['Verheiratet mit Herbert Brunnthaler'],v:['welcome','krampus']},
+ {w:'tyrol',n:'Heidi',img:'heidi-die-kuh',sure:1,role:'Die Kuh',aka:['Frau Kätzchen-Kuh'],
+  d:'Wurde von einer Katze aufgezogen und miaut. Bärbel begrüßt sie als „Frau Kätzchen-Kuh“.',
+  r:['Kuh von Herbert und Hildegard'],v:['welcome','krampus','easter']},
+ {w:'tyrol',n:'Bärbel Unterranacher',img:'baerbel-unterranacher',sure:1,role:'Das Nachbarsmädchen',aka:['Unterranacher Bärbel'],
+  d:'Zwickt mit der Zange ihres Vaters ein Loch in Herberts Zaun und hält ihr Englisch-Referat über den Osterhasen, den sie zur Rede stellen will. Gesprochen von Nina Forcher.',
+  r:['Nachbarin von Herbert Brunnthaler','Ihr Papa landete in ihrer Hasenfalle','Hat den Osterhasen „gefunden“'],v:['easter']},
+ {w:'tyrol',n:'Der Osterhase',img:'osterhase',sure:1,role:'Bärbels Fund',aka:['Herr Hase'],
+  d:'Hat laut Bärbel auf der Straße geschlafen. Herbert sieht das anders.',
+  r:['Von Bärbel Unterranacher mitgebracht'],v:['easter']},
+ {w:'tyrol',n:'Alfons',img:'alfons',sure:1,role:'Herberts Freund aus Wien',aka:[],
   d:'Gastexperte mit den sechs Regeln zum Überleben in Wien, allen voran das Wiener Grantler-Gesicht. Kein Nachname genannt.',
-  r:['Freund von Herbert Brunnthaler'],s:'The 6 rules for surviving Vienna'},
+  r:['Alter Freund von Herbert Brunnthaler'],v:['vienna6']},
+ {w:'tyrol',n:'Herberts Vater',img:'herberts-vater',sure:1,role:'Auf dem Skifoto',aka:['Vader'],
+  d:'Zu sehen auf einem Foto, das Herbert mit acht Jahren beim Skifahren zeigt. Im Bild steht „Vader“.',
+  r:['Vater von Herbert Brunnthaler'],v:['welcome']},
+ {w:'tyrol',n:'Die englische Lady',img:'englische-lady',sure:1,role:'Touristin',aka:[],
+  d:'Fragt im Beweisvideo nach der Kirche und ist von der Freundlichkeit beeindruckt. Namenlos.',
+  r:[],v:['welcome']},
+ {w:'tyrol',n:'Der Nikolaus',img:'nikolaus',sure:1,role:'Brauchtumsfigur',aka:['Nikolo'],
+  d:'Vor ihm hatte Herbert als Kind mehr Angst als vor dem Krampus, weil er verwirrt wirkte und im Haus Sachen kaputt machte.',
+  r:['Der Krampus ist sein „Coworker“'],v:['krampus']},
+ {w:'tyrol',n:'Pichler Jakob',img:'herbert-als-krampus-und-pichler-jakob',sure:1,role:'Herberts Gegner von 1985',aka:[],
+  d:'Wird auf der Zeichnung vom jungen Herbert im Krampus-Kostüm zu Boden geworfen. Die Namen stehen im Bild: „Me“ und „Pichler Jakob“.',
+  r:['Von Herbert Brunnthaler geworfen'],v:['krampus']},
+ {w:'tyrol',n:'Herberts Cousin',img:'herberts-cousin',sure:1,role:'Gegner bei der Vorführung',aka:[],
+  d:'Stellt sich 30 Jahre später als Gegner für Herberts Krampus-Wurf zur Verfügung. Namenlos.',
+  r:['Cousin von Herbert Brunnthaler'],v:['krampus']},
 
- {w:'village',n:'Kofler-Bauer',i:'KB',sure:1,role:'Der Steuersünder',aka:['Koflerbauer','der Steuersünder'],
-  d:'Bauer am Kofler-Hof, „Kofler“ ist also der Hofname. Erklärt seinem Sohn, dass das Gewehr im Kinderzimmer nur zwei Schuss hat. Vorname nicht genannt.',
-  r:['Vater vom „Bua“ (Sohn, namenlos)','Ärger mit Pater Vinzenz wegen der Kirchensteuer (vermutet)'],s:'Der Steuersünder / The Tax Collector'},
- {w:'village',n:'Pater Vinzenz',i:'PV',sure:0,role:'Dorfpfarrer',aka:['der Pfarrer'],
-  d:'Steht auf dem Steuersünder-Merch neben dem Koflerbauer und ist bei Dorfmedizin wieder als Pfarrer verschlagwortet. Vermutlich der „Tax Collector“ des englischen Titels.',
-  r:['Gegenspieler des Kofler-Bauern','Hilft mit Irmgard dem gestürzten Wanderer (vermutet)'],s:'Der Steuersünder · Dorfmedizin'},
- {w:'village',n:'Irmgard',i:'I',sure:0,role:'Kräuterhexe',aka:['die Kräuterhexe'],
-  d:'Gehört zu den „richtigen Leuten“, die einen verletzten Wanderer finden und sein gebrochenes Bein mit Pendel und Globuli behandeln. Name und Spitzname stammen aus den Hashtags.',
-  r:['Behandelt den namenlosen Wanderer','Arbeitet mit Pater Vinzenz zusammen (vermutet)'],s:'Dorfmedizin'},
- {w:'village',n:'Sepp Kruatlhuba',i:'SK',sure:1,role:'Gegenstand des Dorfgerüchts',aka:['Kruatlhuba Sepp','da Sepp'],
-  d:'Den hat es bei der Stallerbrückn runtergeschmissen, und das ganze Dorf hofft, dass es niemand gesehen hat. Sepp ist die Kurzform von Josef. Kruatlhuba könnte ein Hausname sein.',
-  r:['Über ihn tratschen die „Kennsch mi jo, i sog nix“-Dörfler','Im Gerücht kommen auch „der feine Herr Magister“ und ein „Referatsleiter Gartenzaunsanierung“ vor (Merch-Titel, namenlos)'],s:'Dorfgerücht (Kennsch mi jo)'},
- {w:'village',n:'Ploner',i:'P',sure:1,role:'Hutkunde',aka:['da Plona','da Bua vom Plona (vermutet)'],
-  d:'Sucht sich ausgerechnet den einen Hut aus, der nicht zum Verkauf steht, und gibt nicht nach. Nur Nachname bekannt. Gesprochen von Peter Hafele.',
-  r:['Kunde von Gumpitsch','Möglicherweise die Familie hinter Peppi Raffls „Plonaspeck“ (vermutet)'],s:'Hutladen-Kurzfilm'},
- {w:'village',n:'Gumpitsch',i:'G',sure:1,role:'Alter Ladenbesitzer',aka:['der alte Gumpitsch'],
-  d:'Führt den Hutladen und hütet den „Original Stieglitza Jagahuat“. Nur Nachname bekannt. Gesprochen von Manuel Cavaleras.',
-  r:['Verkauft Ploner Hüte, oder eben nicht'],s:'Hutladen-Kurzfilm'},
- {w:'village',n:'Peppi Raffl',i:'PR',sure:1,role:'Gast aus Tirol',aka:['Peppi'],
-  d:'Besonderer Gast in Ediths Küche, bringt einen original Plonaspeck mit. Peppi ist selbst schon ein Kosename, meist für Josef; sein amtlicher Vorname steht nirgends.',
-  r:['Gast bei Edith in Wien','Bringt Speck mit Bezug zum Namen Ploner (vermutet)'],s:'Ediths Backstube Folge 3'},
+ {w:'village',n:'Ruppert Kofler',img:'ruppert-kofler',sure:1,role:'Der Kofler-Bauer, der Steuersünder',aka:['Kofler-Bauer','Koflerbauer'],
+  d:'Zahlt den Kirchenbeitrag nicht und verteidigt den Hof mit dem Gewehr. Seine Frau ruft ihn Ruppert. Misstraut dem Krankenhaus und greift beim verletzten Touristen lieber selbst zur Axt.',
+  r:['Verheiratet mit der Koflerischen','Vater vom Bub','Schuldet Pater Vinzenz den Kirchenbeitrag','Bringt den Touristen zu Arno, Irmgard und Pater Vinzenz','War vier Jahre Sitznachbar von Sepp Kruatlhuba (vermutet, dort nur „der Ruppert“)'],v:['steuer','medizin','geruecht']},
+ {w:'village',n:'Die Koflerische',img:'die-koflerische',sure:1,role:'Rupperts Frau',aka:['Koflerische'],
+  d:'So nennen sie der Pater und Arno; ein Vorname fällt nicht. Sie zahlt den Kirchenbeitrag einfach an der Haustür: 14,50, aufgerundet auf 15.',
+  r:['Verheiratet mit Ruppert Kofler','Mutter vom Bub'],v:['steuer','medizin']},
+ {w:'village',n:'Der Bub',img:'kofler-bub',sure:1,role:'Sohn der Koflers',aka:['Bua'],
+  d:'Bekommt erklärt, dass hinter seiner Kommode ein geladenes Gewehr liegt, und ruft später als Einziger den Notarzt. Namenlos.',
+  r:['Sohn von Ruppert Kofler und der Koflerischen'],v:['steuer','medizin']},
+ {w:'village',n:'Pater Vinzenz',img:'pater-vinzenz',sure:1,role:'Dorfpfarrer',aka:['Pater'],
+  d:'Führt die „Steuerhunde von der Kirche“ an. Dem verletzten Touristen bietet er nur die Beichte an.',
+  r:['Treibt bei Ruppert Kofler den Kirchenbeitrag ein','Lädt die Koflerische zum Pfarrfest ein'],v:['steuer','medizin']},
+ {w:'village',n:'Steuerhund der Kirche',img:'steuerhund',sure:1,role:'Begleiter des Paters',aka:['Lakai'],
+  d:'Einer der beiden Männer mit Sonnenbrille, die mit Pater Vinzenz vor dem Kofler-Hof stehen. Namenlos.',
+  r:['Begleitet Pater Vinzenz'],v:['steuer']},
+ {w:'village',n:'Arno',img:'arno',sure:1,role:'Der Diplomierte',aka:[],
+  d:'Erste Anlaufstelle für den verletzten Touristen. Tippt beim verdrehten Fuß auf eine Allergie oder etwas Psychosomatisches.',
+  r:['Von den Koflers um Rat gefragt'],v:['medizin']},
+ {w:'village',n:'Irmgard',img:'irmgard',sure:1,role:'Kräuterhexe',aka:['die alte Kräuterhexe'],
+  d:'Pendelt das Bein aus, fragt nach Sternzeichen und Kristallenergie und verordnet Globuli für zwei Jahre.',
+  r:['Behandelt den Touristen der Koflers'],v:['medizin']},
+ {w:'village',n:'Der Tourist',img:'tourist',sure:1,role:'Wanderer mit verletztem Bein',aka:[],
+  d:'Spricht nur Englisch und will eigentlich bloß ins Krankenhaus. Am Ende war das Bein nur ausgekegelt. Namenlos.',
+  r:['Von den Koflers gefunden','Vom Notarzt eingerenkt'],v:['medizin']},
+ {w:'village',n:'Der Notarzt',img:'notarzt',sure:1,role:'Notarzt',aka:['Scharlatan (laut Ruppert)'],
+  d:'Vom Bub gerufen. Löst das Problem in Sekunden und in sehr österreichischem Englisch.',
+  r:['Behandelt den Touristen'],v:['medizin']},
+ {w:'village',n:'Sepp Kruatlhuba',img:'sepp-kruatlhuba',sure:1,role:'Referatsleiter Gartenzaunsanierung',aka:['Kruatlhuba Joseph','Seppl','der feine Herr Magister'],
+  d:'Ihn hat es bei der Stallerbrücke hinuntergeschmissen, ein bisschen rauschig. Er erzählt es einem Einzigen, und am Ende erzählt es ihm sein eigener früherer Sitznachbar zurück.',
+  r:['Vertraut sich Gumpitsch an','War vier Jahre Sitznachbar von Ruppert'],v:['geruecht']},
+ {w:'village',n:'Gumpitsch',img:'gumpitsch',sure:1,role:'Hutladenbesitzer und Tratschkopf',aka:['der alte Gumpitsch'],
+  d:'Hütet im Laden den „Original Stieglitza“ und verkauft ihn dann doch um 50 Euro. Im Dorfgerücht ist er der Erste, der „nix sagt“. Laut Sepp hat er außerdem den Bertl überfahren. Gesprochen von Manuel Cavaleras.',
+  r:['Verkauft Ploner den Stieglitza-Hut','Erzählt Sepps Missgeschick weiter'],v:['hut','geruecht']},
+ {w:'village',n:'Ploner',img:'ploner',sure:1,role:'Hutkunde, früher Speckhändler',aka:['der alte Plona'],
+  d:'Sucht sich den einen Hut aus, der nicht zum Verkauf steht, und handelt ihn herunter. Später heißt es, der alte Plona habe seinen Speckhandel zugesperrt und stolziere seit der Pension mit seinem Hut herum. Gesprochen von Peter Hafele.',
+  r:['Kunde von Gumpitsch','Hat einen Sohn, den „Bub vom Plona“ (nie im Bild)','Peppi Raffl schwört auf seinen Speck'],v:['hut','eis','edith3']},
+ {w:'village',n:'Hannelores Mann',img:'hannelores-mann',sure:1,role:'Zweiter in der Gerüchtekette',aka:[],
+  d:'Hört es von Gumpitsch und verspricht, seiner Frau nichts zu erzählen. Namenlos.',
+  r:['Verheiratet mit Hannelore'],v:['geruecht']},
+ {w:'village',n:'Hannelore',img:'hannelore',sure:1,role:'Arbeitet im Salon',aka:[],
+  d:'Soll es „nicht im Salon wieder ausplappern“ und tut genau das.',
+  r:['Verheiratet','Erzählt es ihrer Kundin'],v:['geruecht']},
+ {w:'village',n:'Kundin im Salon',img:'kundin-mit-lockenwicklern',sure:1,role:'Mit Lockenwicklern',aka:[],
+  d:'Muss es sofort dem Ruppert erzählen, weil der mit dem Sepp in die Schule gegangen ist. Namenlos.',
+  r:['Kundin von Hannelore','Erzählt es Ruppert'],v:['geruecht']},
+ {w:'village',n:'Peppi Raffl',img:'peppi-raffl',sure:1,role:'Speckliebhaber aus Tirol',aka:['Peppi','Beppo'],
+  d:'Sucht im neuen veganen Eissalon den Speckhandel Plona, hält den Essenslieferanten für Plonas Sohn und nimmt ihn mit. In Ediths Backstube ist er Gast, zuständig „fürs Marketing“ des neuen Speckhandels.',
+  r:['Gast bei Edith in Wien','Hält Gamper für den Bub vom Plona','Kennt den alten Plona'],v:['eis','edith3']},
+ {w:'village',n:'Gamper',img:'gamper',sure:1,role:'Essenslieferant',aka:['Muchl (so nennt ihn Peppi)'],
+  d:'Erst hergezogen und nur wegen einer Bestellung im Eissalon. Taucht Wochen später in Ediths Küche aus Peppis Gepäck auf und will zurück zu seiner Familie.',
+  r:['Von Peppi Raffl mit Plonas Sohn verwechselt und verschleppt'],v:['eis','edith3']},
+ {w:'village',n:'Der Eisverkäufer',img:'eisverkaeufer',sure:1,role:'Veganer Superfood-Eissalon',aka:[],
+  d:'Hat weder Vanille noch Schokolade, dafür Brokkoli-Brownie. Sein Geschäft steht dort, wo früher der Speckhandel Plona war. Namenlos.',
+  r:[],v:['eis']},
+ {w:'village',n:'Der Vater',img:'vater-ins-hittl-gschaut',sure:1,role:'Bauer in „Ins Hittl g\'schaut“',aka:['Votta'],
+  d:'Will, dass der Sohn den Hof übernimmt, und weiß dann dessen Namen nicht mehr. Sieht dem Kofler-Bauern ähnlich; ob es derselbe ist, bleibt offen.',
+  r:['Vater vom Bua','Getrennt von Margot (vermutet)'],v:['hittl3']},
+ {w:'village',n:'Der Bua',img:'bua-ins-hittl-gschaut',sure:1,role:'Sohn auf Besuch',aka:[],
+  d:'Lebt bei der Mutter in Wien, will Wirtschaft studieren und keinen Schnaps. Sein Name fällt nie.',
+  r:['Sohn vom Vater und von Margot','Bruder oder Verwandter von Peter (vermutet)'],v:['hittl3']},
+ {w:'village',n:'Die zwei Wirtshaus-Philosophen',img:'wirtshaus-philosophen',sure:1,role:'Stammgäste',aka:[],
+  d:'Empören sich, dass Stadträtin Steinmeyer den Bürgermeister wegen seines Aussehens beleidigt hat, und tun im selben Atemzug dasselbe. Beide namenlos.',
+  r:['Verspotten den Krippele'],v:['hittl5']},
+ {w:'village',n:'Krippele',img:'krippele',sure:1,role:'Gast mit Krücken',aka:[],
+  d:'Kommt ins Wirtshaus und wird mit diesem Spottnamen begrüßt. Ein richtiger Name fällt nicht.',
+  r:['Von den Wirtshaus-Philosophen verspottet'],v:['hittl5']},
+ {w:'village',n:'Brunner',img:'alm-date-brunner',sure:1,role:'Beim Alm-Date',aka:[],
+  d:'Name und Alter (26) stehen in seinem Dating-Profil. Im Gespräch geht es darum, ob die beiden über einen Brunner Alfons verwandt sind; das stammt nur aus automatisch erkannten Untertiteln.',
+  r:['Trifft die Frau vom Alm-Date','Mit ihr verwandt (vermutet)'],v:['hittl4']},
+ {w:'village',n:'Die Frau vom Alm-Date',img:'alm-date-sie',sure:1,role:'Beim Alm-Date',aka:[],
+  d:'Trifft ihre Online-Bekanntschaft zum ersten Mal offline. Namenlos.',
+  r:['Trifft Brunner'],v:['hittl4']},
+ {w:'village',n:'Bauer mit Hut',img:'almgespraech-bauer-mit-hut',sure:1,role:'Almgespräch',aka:[],
+  d:'Einer von zwei Bauern, die sich 16 Sekunden lang über „generelle Themen“ unterhalten. Namenlos.',r:[],v:['alm']},
+ {w:'village',n:'Bauer ohne Hut',img:'almgespraech-bauer-ohne-hut',sure:1,role:'Almgespräch',aka:[],
+  d:'Der zweite Bauer aus dem Almgespräch. Namenlos.',r:[],v:['alm']},
+ {w:'village',n:'Die zwei vom Stammtisch',img:'gespraechsthema-stammtisch',sure:1,role:'Gesprächsthema Nummer 1',aka:[],
+  d:'Reden eineinhalb Minuten über „das eine da“, ohne je zu sagen, was es ist. Beide namenlos.',r:[],v:['thema']},
+ {w:'village',n:'Die Telefoniererin',img:'telefoniererin',sure:1,role:'Am Telefon',aka:[],
+  d:'Vereinbart, dass man noch einmal redet, eh wie man geredet hat. Gesprochen von Nini Hölzl. Namenlos.',r:[],v:['telefon']},
+ {w:'village',n:'Josef',img:'josef',sure:1,role:'Krippenspiel in der Tiroler Dorfgemeinde Bethlehem',aka:[],
+  d:'Hat kein Päckchen bestellt, wohnt nicht einmal hier und will wissen, was Myrrhe ist. Maria ist nur zu hören.',
+  r:['Mann von Maria','Streitet mit dem dritten König und dem Engel'],v:['krippe']},
+ {w:'village',n:'Der dritte König',img:'paketbote-koenig',sure:1,role:'Bringt die Myrrhe',aka:[],
+  d:'Liest nur vor, was auf dem Zettel steht, und braucht eine Unterschrift.',
+  r:['Liefert an Josef'],v:['krippe']},
+ {w:'village',n:'Der Engel',img:'engel',sure:1,role:'Verkündet',aka:[],
+  d:'Wird von Josef mehrfach zum Schweigen aufgefordert.',r:[],v:['krippe']},
 
- {w:'vienna',n:'Edith',i:'E',sure:1,role:'Die Backfee',aka:['die liebe Edith','Backfee Edith','Zuckerfee'],
-  d:'Moderiert eine Backsendung mit bedenklichen Zuckermengen: Weihnachtskekse in zwei Minuten, ein Rieseneislutscher, eine Tiroler Speckjause. Kein Nachname genannt.',
-  r:['Kümmert sich um Burli („ihr Burli“)','Gastgeberin von Peppi Raffl'],s:'Ediths Backstube Folge 1 bis 3'},
- {w:'vienna',n:'Burli',i:'B',sure:1,role:'Ediths Bub',aka:['du Lauser'],
-  d:'Burli heißt auf Wienerisch „kleiner Bub“, ist also ein Spitzname; sein richtiger Name fällt nie. Ein „leicht nervös Burli“ steht auch auf dem Merch zum Sonnen-Interview. Ob das derselbe Bub ist oder nur dieselbe Anrede, bleibt offen.',
-  r:['Ediths Bub und Küchenhelfer'],s:'Ediths Backstube Folge 2 · Merch'},
- {w:'vienna',n:'Dr. Eberhard Zupffinger',i:'EZ',sure:1,role:'Beauty-Doc',aka:['der Nasenzupfer','der Beauty-Doc'],
-  d:'Schönheitschirurg, dessen Methode zum Namen passt.',
-  r:['Chirurg von Frau Simacek'],s:'Der Nasenzupfer'},
- {w:'vienna',n:'Frau Simacek',i:'S',sure:1,role:'Patientin',aka:[],
-  d:'Möchte endlich eine ganz normale Nase haben. Vorname nicht genannt.',
-  r:['Patientin von Dr. Eberhard Zupffinger'],s:'Der Nasenzupfer'},
- {w:'vienna',n:'Das Hutmännchen',i:'HM',sure:1,role:'Männchen mit Hut',aka:[],
-  d:'Beschwert sich auf der Mariahilfer Straße und bekommt später sein lang ersehntes Interview mit der Sonne über Wien. Kein Eigenname genannt.',
-  r:['Interviewt die Wiener Sonne','Braucht eine Drehgenehmigung von der Wolke (Merch: „Wolke Drehgenehmigung“)'],s:'Hutmännchen auf der Mahü · Interview mit der Wiener Sonne 1 und 2'},
- {w:'vienna',n:'Die Wiener Sonne',i:'WS',sure:1,role:'Die regionale Sonne',aka:['die regionale Sonne'],
-  d:'Die für Wien zuständige Sonne, in zwei Teilen interviewt.',
-  r:['Wird vom Hutmännchen interviewt'],s:'Interview mit der Wiener Sonne'},
- {w:'vienna',n:'Der Wiener Bub',i:'WB',sure:1,role:'Bub, der ein Samuraischwert will',aka:[],
-  d:'Ihm wurde zu Weihnachten ein Samuraischwert aus Japan versprochen, und er bekommt es nicht. Namenlos.',
-  r:['Trifft den deutschen Hipster auf Wien-Besuch im Advent','Hat mit dem Weihnachtsmann zu tun'],s:'Das Versprechen Teil 1 bis 3'},
- {w:'vienna',n:'Der deutsche Hipster',i:'DH',sure:1,role:'Tourist im Advent',aka:[],
-  d:'Ein deutscher Besucher, mit dessen Wien-Reise die Weihnachtsgeschichte beginnt. Namenlos.',
-  r:['Begegnet dem Wiener Bub'],s:'Das Versprechen Teil 1'},
- {w:'vienna',n:'Der neue Präsident',i:'NP',sure:1,role:'Frisch gewählter Präsident',aka:[],
-  d:'Gibt nach einer Woche im Amt einen Statusbericht über seine Wahlversprechen. Das Merch zu diesen Videos nennt einen „Flötenbernhard“; wer das ist, bleibt ohne Video unklar.',
-  r:['Verbindung zu „Flötenbernhard“ (vermutet)'],s:'Der neue Präsident Teil 1 und 2'},
- {w:'vienna',n:'Der Bewerbungsbetrüger',i:'BB',sure:1,role:'Betrüger im Bewerbungswesen',aka:[],
-  d:'Schleust durch offene Bürofenster heimlich neue Mitarbeiter ein. In den Hashtags steht ein Kevin, vermutlich Kollege oder Opfer.',
-  r:['Kevin (Rolle unbekannt, vermutet)'],s:'Der Bewerbungsbetrüger'},
- {w:'vienna',n:'Der Monologiker',i:'M',sure:1,role:'Redner auf der Donauinsel',aka:['der Donauinsulaner'],
-  d:'Eine Sommerbegegnung an der Donau mit einem Mann, der allein redet.',
-  r:[],s:'Der Monologiker'},
- {w:'vienna',n:'Da Kusön',i:'K',sure:0,role:'Der Cousin',aka:['„Hallo, I bin da Kusön!“'],
-  d:'Figur mit Spruch aus Internetz-TV, der Sendung, die erklärt, wie man das Internetz neu startet.',
-  r:[],s:'Internetz-TV'}
+ {w:'vienna',n:'Edith',img:'edith',sure:1,role:'Die Backfee',aka:['die liebe Edith','Backfee Edith'],
+  d:'Moderiert eine Backsendung für ihre „Zuckerfeen“ mit bedenklichen Zuckermengen: Weihnachtskekse in zwei Minuten, ein Rieseneislutscher, eine Tiroler Brettljause. Kein Nachname genannt.',
+  r:['Mutter von Burli','Gastgeberin von Peppi Raffl'],v:['edith1','edith2','edith3']},
+ {w:'vienna',n:'Burli',img:'burli',sure:1,role:'Ediths Sohn und Assistent',aka:['du Lauser'],
+  d:'Sagt „Mama“ zu Edith. Burli heißt auf Wienerisch „kleiner Bub“, sein richtiger Name fällt nie. Nach dem Rieseneislutscher erfährt er kosmisches Wissen und muss ein Buch schreiben.',
+  r:['Sohn von Edith','Erzählt von einer Lilly'],v:['edith1','edith2','edith3']},
+ {w:'vienna',n:'Dr. Eberhard Zupffinger',img:'dr-eberhard-zupffinger',sure:1,role:'Beauty-Doc',aka:['der Nasenzupfer'],
+  d:'Schönheitschirurg mit patentiertem Dr.-Eberhard-Zupffinger-Nasenzupfer. Der Eingriff kostet 5.800 Euro.',
+  r:['Chirurg von Frau Simacek'],v:['nase']},
+ {w:'vienna',n:'Frau Simacek',img:'frau-simacek',sure:1,role:'Patientin',aka:[],
+  d:'Wird seit der Schule wegen ihrer Nase gehänselt und wünscht sich eine wie Berlusconi. Vorname nicht genannt.',
+  r:['Patientin von Dr. Eberhard Zupffinger'],v:['nase']},
+ {w:'vienna',n:'Das Hutmännchen',img:'hutmaennchen-interview',sure:1,role:'Interviewer mit Spitzhut',aka:['Piefke','Burli (so nennt ihn die Sonne)'],
+  d:'Bekommt sein lang ersehntes Interview mit der Sonne über Wien. Spricht Hochdeutsch und versteht den Schottentor-Schmäh nicht. Den Namen Hutmännchen nennt die Videobeschreibung.',
+  r:['Interviewt die Wiener Sonne','Von der Wolke nach der Drehgenehmigung gefragt','Dieselbe Figur wie der Monologiker (vermutet)'],v:['sonne']},
+ {w:'vienna',n:'Der Mann mit dem Zylinder',img:'hutmaennchen-mahue',sure:1,role:'Hutträger auf der Mariahilfer Straße',aka:[],
+  d:'Fühlt sich von jedem Passanten wegen seines Huts angestarrt und droht mit dem „Watschen-Walzer“. Ob er dasselbe Hutmännchen ist wie der Interviewer mit Spitzhut, bleibt offen.',
+  r:['Dasselbe Hutmännchen wie im Sonnen-Interview (vermutet)'],v:['mahue']},
+ {w:'vienna',n:'Der Monologiker',img:'monologiker',sure:1,role:'Urlauber auf der Donauinsel',aka:['Haberer'],
+  d:'Kommentiert laut und auf Hochdeutsch seinen freien Tag am „schönsten Strand von Wien“. Trägt denselben Spitzhut wie das Hutmännchen im Sonnen-Interview.',
+  r:['Nervt den Grantler von der Donauinsel'],v:['monolog']},
+ {w:'vienna',n:'Der Grantler von der Donauinsel',img:'donauinsel-grantler',sure:1,role:'Wiener auf der Liege',aka:[],
+  d:'Fragt, wo man den Monologiker abdrehen kann, und führt danach selbst einen Monolog. Namenlos.',
+  r:['Vertreibt den Monologiker'],v:['monolog']},
+ {w:'vienna',n:'Die Wiener Sonne',img:'wiener-sonne',sure:1,role:'Die regionale Sonne',aka:['Herr Sonne'],
+  d:'Nur für Wien zuständig, im Winter auf Urlaub in der Karibik oder in Jesolo. Verbittet sich die Anrede „Frau“ und hält die Erde für flach.',
+  r:['Wird vom Hutmännchen interviewt','Die Wolke ist ihre Nachbarin'],v:['sonne']},
+ {w:'vienna',n:'Die Wolke',img:'wolke-nachbarin',sure:1,role:'Die Nachbarin der Sonne',aka:['Frau Nachbarin','die Alte'],
+  d:'Mischt sich ins Interview ein und verlangt eine Drehgenehmigung, weil das Stativ auf dem Gehsteig steht.',
+  r:['Nachbarin der Wiener Sonne'],v:['sonne']},
+ {w:'vienna',n:'Der Wiener Bub',img:'wiener-bub',sure:1,role:'Will ein Samuraischwert',aka:['Putzerl'],
+  d:'Neun Jahre alt. Hält einen deutschen Touristen für den Weihnachtsmann, bekommt statt des Schwerts ein Plastik-Laserschwert und reist dem Mann bis nach Berlin nach.',
+  r:['Bedrängt den deutschen Hipster','Sohn seiner namenlosen Eltern'],v:['v1','v2','v3']},
+ {w:'vienna',n:'Der deutsche Hipster',img:'deutscher-hipster',sure:1,role:'Der falsche Weihnachtsmann',aka:['Weihnachtsmann'],
+  d:'Besucht Wien im Advent, wohnt in Berlin und bestellt am Ende das Samuraischwert per Express mit seiner Kreditkarte. Namenlos.',
+  r:['Vom Wiener Bub für den Weihnachtsmann gehalten'],v:['v1','v3']},
+ {w:'vienna',n:'Vater des Wiener Bubs',img:'wiener-bub-vater',sure:1,role:'Bescherung',aka:[],
+  d:'Hätte lieber ins Wirtshaus gehen sollen. Namenlos.',r:['Vater des Wiener Bubs'],v:['v2']},
+ {w:'vienna',n:'Mutter des Wiener Bubs',img:'wiener-bub-mutter',sure:1,role:'Bescherung',aka:[],
+  d:'Freut sich über das Laserschwert mehr als ihr Sohn. Namenlos.',r:['Mutter des Wiener Bubs'],v:['v2']},
+ {w:'vienna',n:'Der neue Präsident',img:'der-neue-praesident',sure:1,role:'Seit einer Woche im Amt',aka:[],
+  d:'Zieht Bilanz seiner Wahlversprechen: Das Gratis-Joghurt ist nichts geworden, die 1.000 Euro für jeden gehen an Konzerne. Namenlos.',
+  r:['Beraten von Herrn Lobbinger','Stellt den Roboter Zunderer vor'],v:['praes']},
+ {w:'vienna',n:'Herr Lobbinger',img:'herr-lobbinger',sure:1,role:'„Hochrangiger Wirtschaftsexperte“',aka:[],
+  d:'Von der Firma Roboz 4 se Wörld GmbH. Sitzt bei der Pressekonferenz in der ersten Reihe.',
+  r:['Berät den neuen Präsidenten'],v:['praes']},
+ {w:'vienna',n:'Begleiter des Präsidenten',img:'praesidenten-begleiter',sure:1,role:'Aufpasser',aka:[],
+  d:'Unterbricht den Präsidenten, als der über Flötenbernhard sprechen will. Namenlos.',r:['Bremst den neuen Präsidenten'],v:['praes']},
+ {w:'vienna',n:'Flötenbernhard',img:'floetenbernhard',sure:1,role:'Geheimes Genexperiment',aka:[],
+  d:'Ein Experiment der Regierung, seit 17 Jahren geheim. Zu sehen ist nur die Schautafel, dann muss der Präsident das Thema überspringen.',
+  r:['Geheimnis der Regierung'],v:['praes']},
+ {w:'vienna',n:'Zunderer',img:'zunderer',sure:1,role:'Flammenwerfer-Roboter',aka:[],
+  d:'Prototyp des Vereins Roboz 4 se Poor. Beantwortet Fragen rund um Feuer und zündet auf Wunsch die Vorhänge an.',
+  r:['Übernimmt die Fragen für den Präsidenten'],v:['praes']},
+ {w:'vienna',n:'Der Bewerbungsbetrüger',img:'bewerbungsbetrueger',sure:1,role:'Stellt heimlich Leute ein',aka:[],
+  d:'Führt in einem fremden Büro Vorstellungsgespräche, bietet 7.000 Euro fürs Praktikum und flieht, sobald die echten Mitarbeiter kommen. Namenlos.',
+  r:['Will Gernot Hofbauer einstellen'],v:['bewerb']},
+ {w:'vienna',n:'Gernot Hofbauer',img:'gernot-hofbauer',sure:1,role:'Bewerber',aka:['Herr Gebauer, Moosbacher, Hofstädter, Brandstätter'],
+  d:'Studiert Software Engineering und sucht ein Praktikum. Der Betrüger nennt ihn jedes Mal anders. Sieht genauso aus wie Gernot Hofstätter aus der Matrix-Szene.',
+  r:['Beinahe-Opfer des Bewerbungsbetrügers','Dieselbe Figur wie Gernot Hofstätter (vermutet)'],v:['bewerb']},
+ {w:'vienna',n:'Echter Mitarbeiter',img:'echter-mitarbeiter',sure:1,role:'Aus der Firma',aka:[],
+  d:'Erklärt, dass der Unbekannte im letzten Monat sechs Leute angestellt hat, und will ein Wurfnetz. Namenlos.',r:['Jagt den Bewerbungsbetrüger'],v:['bewerb']},
+ {w:'vienna',n:'Moderator von Internetz-TV',img:'internetz-tv-moderator',sure:1,role:'Erklärt das Internetz',aka:[],
+  d:'Liest Zuschriften vor und blendet Passwörter gleich mit ein. Namenlos.',
+  r:['Cousin von Da Kusön'],v:['inet']},
+ {w:'vienna',n:'Da Kusön',img:'da-kusoen',sure:1,role:'Der Cousin',aka:['der Cousin'],
+  d:'Liest Brief Nummer drei vor und rät Frau Schmalzkoffer zunächst, dem Prinzen aus Nigeria das Geld zu überweisen.',
+  r:['Cousin des Moderators'],v:['inet']},
+ {w:'vienna',n:'Frau Brennsackl',img:'frau-brennsackl',sure:1,role:'Zuschauerin',aka:['franzbrennsackl77'],
+  d:'Hat ihr Passwort für alle Programme verloren. Zu sehen ist nur ihr Profilbild.',r:['Schreibt an Internetz-TV'],v:['inet']},
+ {w:'vienna',n:'Das Mandale',img:'mandale',sure:1,role:'Hat sein Handy vergessen',aka:[],
+  d:'Sitzt auf einem Baum und erklärt der Polizei, dass sein Handy in der Wohnung einer Kollegin liegt. Der Ton stammt aus der ATV-Serie „Wachzimmer Ottakring“.',
+  r:['Ruft die Polizei'],v:['polizei']},
+ {w:'vienna',n:'Der Polizist',img:'polizist',sure:1,role:'Im Einsatz',aka:[],
+  d:'Einer von zwei Polizisten, die dem Mandale auch nicht helfen können. Namenlos.',r:[],v:['polizei']},
+ {w:'vienna',n:'Der Vogelfotograf',img:'vogel-fotograf',sure:1,role:'Nachbar im 11. Bezirk',aka:[],
+  d:'Fotografiert vom Balkon einen großen Vogel mit schwarzen Federn und wird für einen Spanner gehalten. Namenlos.',r:['Streitet mit dem Nachbarn gegenüber'],v:['vogel']},
+ {w:'vienna',n:'Der Nachbar gegenüber',img:'vogel-nachbar',sure:1,role:'Nachbar im 11. Bezirk',aka:[],
+  d:'Geht mit dem Besen auf den Fotografen los, bis der Vogel wirklich kommt. Namenlos.',r:['Lädt den Vogelfotografen am Ende auf einen Kaffee ein'],v:['vogel']},
+ {w:'vienna',n:'Klomandl',img:'klomandl',sure:1,role:'Muss dringend',aka:[],
+  d:'Links der Wartende, rechts der Mann am Tisch vor dem WC, der zwei Minuten verspricht. Beide namenlos.',r:[],v:['klo']},
+
+ {w:'parody',n:'Gandalf',img:'gandalf',sure:1,role:'Zauberer vor verschlossener Tür',aka:[],
+  d:'Steht seit drei Stunden vor den Toren von Moria. Sein Stab ist laut eigener Auskunft zum Lesen als Lampe ausgelegt.',r:['Streitet mit Frodo'],v:['moria']},
+ {w:'parody',n:'Frodo',img:'frodo',sure:1,role:'Will endlich hinein',aka:[],
+  d:'Stellt Gandalf zur Rede: Allen ist kalt, und der Sam muss aufs Klo.',r:['Streitet mit Gandalf'],v:['moria']},
+ {w:'parody',n:'Aragorn',img:'aragorn',sure:0,role:'Sucht sein Schwert',aka:[],
+  d:'Fragt zwischendurch, ob jemand ein Schwert herumliegen gesehen hat. Sein Name fällt nicht; die Zuordnung folgt Aussehen und Videobeschreibung.',r:[],v:['moria']},
+ {w:'parody',n:'Gimli',img:'gimli-gimmlitzer',sure:1,role:'Der Zwerg',aka:['der Gimmlitzer'],
+  d:'War beim Bau von Moria nicht dabei. Der Wiener Nachbar erkennt ihn als Gimmlitzer aus der Parallelklasse im Poly Seidlergasse.',
+  r:['Schulfreund des Nachbarn von der 1er-Stiege'],v:['moria']},
+ {w:'parody',n:'Der Nachbar von der 1er-Stiege',img:'wiener-nachbar-moria',sure:1,role:'Wiener, um drei in der Früh geweckt',aka:[],
+  d:'Droht erst mit der Polizei und macht dann die Tür unten auf, weil er Gimli von früher kennt. Namenlos.',
+  r:['Schulfreund von Gimli'],v:['moria']},
+ {w:'parody',n:'Morpheus',img:'morpheus',sure:1,role:'Sucht den echten Neo',aka:[],
+  d:'Arbeitet eine Kandidatenliste ab. Vor Thomas Anderson ist Gernot Hofstätter dran.',r:['Bietet Gernot Hofstätter die Pillen an'],v:['matrix']},
+ {w:'parody',n:'Gernot Hofstätter',img:'gernot-hofstaetter',sure:1,role:'Neo-Kandidat',aka:['Neo'],
+  d:'Junger Programmierer mit Magenproblemen. Will die Pillen zuerst seinem Arzt Dr. Feldgruber zeigen.',
+  r:['Kandidat von Morpheus','Patient von Dr. Feldgruber','Dieselbe Figur wie Gernot Hofbauer (vermutet)'],v:['matrix']},
+ {w:'parody',n:'Nomad Carl',img:'nomad-carl',sure:1,role:'Weltreisender',aka:['Carl'],
+  d:'Hauptfigur eines Kurzfilms ohne Dialog, inspiriert von einem 74-jährigen amerikanischen Reisenden.',r:[],v:['carl']},
+ {w:'parody',n:'Anführer der Bogenschützen',img:'bogenschuetzen-anfuehrer',sure:1,role:'„Der schlaue General“',aka:[],
+  d:'Schießt scheinbar daneben und setzt damit den Boden vor der Burg in Brand.',r:['Besiegt den Anführer der Ritter'],v:['ritter']},
+ {w:'parody',n:'Anführer der Ritter',img:'ritter-anfuehrer',sure:1,role:'Greift die Burg an',aka:[],
+  d:'Lacht über den Fehlschuss, bis alles brennt.',r:['Verliert gegen den Anführer der Bogenschützen'],v:['ritter']}
 ];
-const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const vlink=k=>`<a href="https://www.youtube.com/watch?v=${V[k][1]}">${esc(V[k][0])}</a>`;
 document.querySelectorAll('.cards').forEach(box=>{
   box.innerHTML=chars.filter(c=>c.w===box.dataset.world).map(c=>`
   <article class="card">
-    <div class="top"><div class="avatar" aria-hidden="true">${esc(c.i)}</div><div class="who"><h3>${esc(c.n)}</h3><div>${c.sure?S:G}</div></div></div>
+    <div class="top"><a class="avatar" href="figuren/${c.img}.jpg"><img src="figuren/${c.img}.jpg" alt="Standbild: ${esc(c.n)}" width="76" height="76" loading="lazy"></a><div class="who"><h3>${esc(c.n)}</h3><div>${c.sure?S:G}</div></div></div>
     <p class="role">${esc(c.role)}</p>
     ${c.aka.length?`<ul class="aka">${c.aka.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`:''}
     <p>${esc(c.d)}</p>
     ${c.r.length?`<ul class="rel">${c.r.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`:''}
-    <div class="src">Zu sehen in: ${esc(c.s)}</div>
+    <div class="src">Zu sehen in: ${c.v.map(vlink).join(' · ')}</div>
   </article>`).join('');
 });
-const parody=[
- ['Mittelerde Österreich','Gandalf, Frodo, Gimli, Aragorn, Boromir und Pippin („der närrische Tuk“) streiten vor den Toren von Moria. Frodo will wissen, warum das Türöffnen so lange dauert.'],
- ['Samm','Aus dem Merch-Spruch „Der Samm muss brunzen“. Sehr wahrscheinlich Sam aus der Mittelerde-Parodie (vermutet).'],
- ['Matrix, entfallene Szene','Morpheus arbeitet eine Reihe von Kandidaten ab, um den echten Neo zu finden.'],
- ['Nikolaus und Krampus','Der heilige Nikolaus und sein teuflischer Begleiter, erklärt von Herbert.'],
- ['Der Osterhase','Das Ziel von Bärbel Unterranacher. Laut Merch hat sie ihn gefunden.'],
- ['Der Weihnachtsmann','Kommt in Das Versprechen vor („Zwa Sekunden, Weihnochtsmonn“).'],
- ['Gimmlitzer','Nur aus dem Merch-Spruch „Bist du da Gimmlitzer?“ bekannt. Video nicht zugeordnet.']
+const mentioned=[
+ ['Margot','Mutter des Bua aus „Ins Hittl g\'schaut“ Folge 3. Lebt mit ihm in Wien.'],
+ ['Peter','Soll laut dem Bua den Hof übernehmen. Der Vater weiß davon nichts mehr.'],
+ ['Stadträtin Steinmeyer','Hat den Bürgermeister beleidigt, worüber sich die Wirtshaus-Philosophen aufregen.'],
+ ['Der Bub vom Plona','Sohn des alten Plona. Peppi Raffl will mit ihm den Speckhandel neu aufmachen und erwischt stattdessen Gamper.'],
+ ['Bertl','Der alte Bock vom Tegler-Bauer. Laut Sepp Kruatlhuba von Gumpitsch überfahren.'],
+ ['Tegler-Bauer','Besitzer vom Bertl.'],
+ ['Maria','Im Krippenspiel nur zu hören.'],
+ ['Bärbels Papa','Trat in ihre Hasenfalle und verbot ihr danach das Fallenbauen. Im Video nur eingegipst und unscharf zu sehen.'],
+ ['Lilly','Hat laut Burli jetzt ganz kurze Haare.'],
+ ['Kuchlmame','So nennt Peppi Raffl am Telefon den Ort, an dem er gerade ist: bei Edith in der Küche.'],
+ ['Dr. Feldgruber','Arzt von Gernot Hofstätter. Nächster Termin am Montag.'],
+ ['Sam','Muss vor Moria dringend aufs Klo. Daher der Merch-Spruch mit dem „Samm“.'],
+ ['Pippin','Wird am Ende vom Riesenkraken erwischt.'],
+ ['Hilti','Mitschüler von Gimli und dem Wiener Nachbarn im Poly Seidlergasse. „Untergetaucht.“'],
+ ['Frau Schmalzkoffer','Schreibt an Internetz-TV wegen eines Prinzen aus Nigeria.'],
+ ['Herr Wintermeyer und Herr Trummer','Namen, mit denen der neue Präsident einen Fragesteller anspricht.'],
+ ['Der Hutbesitzer bei der Pressekonferenz','Fragt den Roboter Zunderer nach der Hutsteuer des Bürgermeisters. Nur zu hören.'],
+ ['Der Weihnachtsmann','Kommt in „Das Versprechen“ nie selbst vor. Der Bub hält den deutschen Hipster dafür.'],
+ ['Der Krampus','Begleiter des Nikolaus. Im Video in alten Aufnahmen und als Herberts Kostüm zu sehen.']
 ];
-document.getElementById('parody').innerHTML=parody.map(p=>`<li><b>${esc(p[0])}</b><br>${esc(p[1])}</li>`).join('');
+document.getElementById('mentioned').innerHTML=mentioned.map(p=>`<li><b>${esc(p[0])}</b><br>${esc(p[1])}</li>`).join('');
 const rels=[
  ['Herbert Brunnthaler','verheiratet mit','Hildegard',1],
+ ['Herbert Brunnthaler','hält die Kuh','Heidi',1],
  ['Herbert Brunnthaler','Freund von','Alfons',1],
  ['Herbert Brunnthaler','Nachbar von','Bärbel Unterranacher',1],
- ['Herbert Brunnthaler','Besitzer von','Kuh Heidi',0],
- ['Bärbel Unterranacher','Tochter von','ihrem namenlosen Vater',1],
- ['Bärbel Unterranacher','jagt','den Osterhasen',1],
- ['Kofler-Bauer','Vater von','dem Bua',1],
- ['Kofler-Bauer','Kirchensteuer-Streit mit','Pater Vinzenz',0],
- ['Pater Vinzenz','versorgt den Wanderer mit','Irmgard',0],
+ ['Herbert Brunnthaler','Sohn von','Herberts Vater',1],
+ ['Herbert Brunnthaler','Cousin von','Herberts Cousin',1],
+ ['Herbert Brunnthaler','warf 1985 als Krampus','Pichler Jakob',1],
+ ['Bärbel Unterranacher','Tochter von','ihrem namenlosen Papa',1],
+ ['Bärbel Unterranacher','fand','den Osterhasen',1],
+ ['Ruppert Kofler','verheiratet mit','der Koflerischen',1],
+ ['Ruppert Kofler','Vater von','dem Bub',1],
+ ['Pater Vinzenz','treibt den Kirchenbeitrag ein bei','Ruppert Kofler',1],
+ ['Ruppert Kofler','sucht Hilfe für den Touristen bei','Arno, Irmgard und Pater Vinzenz',1],
+ ['Der Notarzt','renkt das Bein ein von','dem Touristen',1],
+ ['Sepp Kruatlhuba','vertraut sich an','Gumpitsch',1],
+ ['Gumpitsch','erzählt es','Hannelores Mann',1],
+ ['Hannelores Mann','verheiratet mit','Hannelore',1],
+ ['Hannelore','erzählt es','ihrer Kundin',1],
+ ['Sepp Kruatlhuba','vier Jahre Sitznachbar von','Ruppert',1],
+ ['Ruppert (Dorfgerücht)','dieselbe Figur wie','Ruppert Kofler',0],
+ ['Gumpitsch','überfuhr','Bertl, den Bock vom Tegler-Bauer',1],
  ['Ploner','Kunde von','Gumpitsch',1],
+ ['Ploner','Vater von','dem Bub vom Plona',1],
  ['Peppi Raffl','Gast bei','Edith',1],
- ['Peppi Raffl','bringt Speck von','Ploner',0],
- ['Edith','kümmert sich um','Burli',1],
+ ['Peppi Raffl','verwechselt und verschleppt','Gamper',1],
+ ['Der Vater (Ins Hittl g\'schaut)','Vater von','dem Bua',1],
+ ['Der Vater (Ins Hittl g\'schaut)','dieselbe Figur wie','Ruppert Kofler',0],
+ ['Der Bua','Sohn von','Margot',1],
+ ['Die Wirtshaus-Philosophen','verspotten','Krippele',1],
+ ['Brunner','trifft','die Frau vom Alm-Date',1],
+ ['Brunner','verwandt mit','der Frau vom Alm-Date',0],
+ ['Josef','Mann von','Maria',1],
+ ['Edith','Mutter von','Burli',1],
  ['Frau Simacek','Patientin von','Dr. Eberhard Zupffinger',1],
  ['Das Hutmännchen','interviewt','Die Wiener Sonne',1],
- ['Der Wiener Bub','trifft','Der deutsche Hipster',0],
- ['Der neue Präsident','Verbindung zu','Flötenbernhard',0]
+ ['Die Wolke','Nachbarin von','Die Wiener Sonne',1],
+ ['Das Hutmännchen','dieselbe Figur wie','Der Monologiker',0],
+ ['Das Hutmännchen','dieselbe Figur wie','Der Mann mit dem Zylinder',0],
+ ['Der Monologiker','nervt','den Grantler von der Donauinsel',1],
+ ['Der Wiener Bub','hält für den Weihnachtsmann','Der deutsche Hipster',1],
+ ['Der Wiener Bub','Sohn von','seinen namenlosen Eltern',1],
+ ['Der neue Präsident','beraten von','Herr Lobbinger',1],
+ ['Der neue Präsident','darf nicht sprechen über','Flötenbernhard',1],
+ ['Zunderer','gebaut vom Verein','Roboz 4 se Poor',1],
+ ['Der Bewerbungsbetrüger','will einstellen','Gernot Hofbauer',1],
+ ['Gernot Hofbauer','dieselbe Figur wie','Gernot Hofstätter',0],
+ ['Gernot Hofstätter','Patient von','Dr. Feldgruber',1],
+ ['Morpheus','prüft als Neo-Kandidaten','Gernot Hofstätter',1],
+ ['Da Kusön','Cousin von','dem Moderator von Internetz-TV',1],
+ ['Gimli','Schulfreund von','dem Nachbarn von der 1er-Stiege',1],
+ ['Frodo','streitet mit','Gandalf',1]
 ];
 document.getElementById('reltable').innerHTML=rels.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td><b>${esc(r[2])}</b></td><td>${r[3]?S:G}</td></tr>`).join('');
-const vids=[
- ['Video proof that Austrians are very friendly','shorts/U7QTmT0ZP1c'],
- ['The Magic Tunes of Austria','watch?v=uy_kC4YfXrs'],
- ['The Krampus is coming to town','watch?v=ScYQVkO786s'],
- ['Der Steuersünder / The Tax Collector','watch?v=eRgjMVUvsvk'],
- ['Dorfgerücht (Kennsch mi jo)','watch?v=DOXIA9J9YKU'],
- ['What people in Austria talk about at the pub','watch?v=DSnUaMiR4zQ'],
- ['Weihnachtskekse, Ediths Backstube','watch?v=vEpO0QvrAXQ'],
- ['Rieseneislutscher, Ediths Backstube 2','watch?v=u79Mtt3pFuc'],
- ['Das Versprechen Teil 1','watch?v=GFdnZlaqLac'],
- ['Das Versprechen Teil 2','watch?v=VK5zAbNI3I8'],
- ['Das Versprechen Teil 3','watch?v=qEE1OfSJU44'],
- ['Der Bewerbungsbetrüger','watch?v=2pEoJgc4FQY'],
- ['Der Monologiker','watch?v=eHCiLy_xIQU'],
- ['Internetz-TV','watch?v=NVnAmycPVLE'],
- ['Mittelerde Österreich','watch?v=mEDgVgxQdAo']
-];
-document.getElementById('videos').innerHTML=vids.map(v=>`<li><a href="https://www.youtube.com/${v[1]}">${esc(v[0])}</a></li>`).join('')
- +'<li>Ebenfalls verwendet, ohne gefundenen YouTube-Link: The 6 rules for surviving Vienna, die Oster-Folge, Der Nasenzupfer, Dorfmedizin, der Hutladen-Kurzfilm, Ediths Backstube 3, Interview mit der Wiener Sonne 1 und 2, Der neue Präsident 1 und 2, das Hutmännchen auf der Mariahilfer Straße, die Matrix-Szene.</li>';
+document.getElementById('videos').innerHTML=Object.keys(V).map(k=>`<li>${vlink(k)}</li>`).join('');
+document.getElementById('st-all').textContent=chars.length;
+document.getElementById('st-vid').textContent=Object.keys(V).length;
+document.getElementById('st-rel').textContent=rels.length;
+
+/* ---------- Bewegung und Zoom ---------- */
+const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Titel: Buchstaben einzeln hereinfallen lassen. */
+(()=>{const h=document.querySelector('h1');const t=h.textContent;h.setAttribute('aria-label',t);
+  h.innerHTML=t.split(' ').map(w=>`<span style="white-space:nowrap">${[...w].map(c=>`<span aria-hidden="true">${c}</span>`).join('')}</span>`).join(' ');
+  h.querySelectorAll('span span').forEach((s,i)=>s.style.setProperty('--i',i));})();
+
+/* Zahlen im Kopf hochzählen. */
+document.querySelectorAll('.stat b').forEach(b=>{const end=+b.textContent;if(calm||!end){return;}
+  const t0=performance.now();const step=now=>{const p=Math.min(1,(now-t0)/1400);b.textContent=Math.round(end*(1-Math.pow(1-p,3)));if(p<1){requestAnimationFrame(step);}};requestAnimationFrame(step);});
+
+/* Figurenparade: jede dritte Figur, doppelt für die Endlosschleife. */
+(()=>{const pick=chars.filter((c,i)=>i%3===0);const row=pick.map((c,i)=>`<a href="#c-${c.img}" style="--i:${i}" tabindex="-1"><img src="figuren/${c.img}.jpg" alt="" width="68" height="68"></a>`).join('');
+  document.getElementById('parade').innerHTML=row+row;})();
+
+/* Karten bekommen eine Sprungmarke; Klick in der Parade springt hin und lässt die Karte kurz aufleuchten. */
+document.querySelectorAll('.card').forEach((card,i)=>{card.id='c-'+chars[i].img;});
+document.getElementById('parade').addEventListener('click',e=>{const a=e.target.closest('a');if(!a){return;}e.preventDefault();
+  const card=document.querySelector(a.getAttribute('href'));card.classList.add('in');card.scrollIntoView({behavior:calm?'auto':'smooth',block:'center'});
+  if(!calm){card.animate([{boxShadow:'0 0 0 0 var(--c)'},{boxShadow:'0 0 0 14px transparent'}],{duration:900,iterations:2});}});
+
+/* Einfliegen beim Scrollen, in jeder Reihe leicht versetzt. */
+const revealables=[...document.querySelectorAll('.card,.small li,.note,.mapbox,.tablebox,section>h2')];
+revealables.forEach(el=>el.classList.add('reveal'));
+const seen=new IntersectionObserver(entries=>{let n=0;entries.forEach(en=>{if(en.isIntersecting){en.target.style.setProperty('--d',n++%6);en.target.classList.add('in');seen.unobserve(en.target);}});},{rootMargin:'0px 0px -8% 0px'});
+revealables.forEach(el=>seen.observe(el));
+
+/* Karten neigen sich zur Maus und bekommen einen Lichtfleck. */
+if(matchMedia('(hover:hover)').matches&&!calm){document.querySelectorAll('.card').forEach(card=>{
+  card.addEventListener('pointermove',e=>{const r=card.getBoundingClientRect();const x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+    card.style.setProperty('--ry',((x-.5)*9).toFixed(2)+'deg');card.style.setProperty('--rx',((.5-y)*9).toFixed(2)+'deg');
+    card.style.setProperty('--mx',(x*100)+'%');card.style.setProperty('--my',(y*100)+'%');});
+  card.addEventListener('pointerleave',()=>{card.style.setProperty('--rx','0deg');card.style.setProperty('--ry','0deg');});});}
+
+/* Beziehungskarte zeichnet sich, sobald sie ins Bild kommt. */
+(()=>{const svg=document.querySelector('.mapbox svg');svg.querySelectorAll('.edge').forEach((p,i)=>{p.setAttribute('pathLength','1');p.style.setProperty('--i',i);});
+  svg.querySelectorAll('g[class^="n-"]').forEach((g,i)=>g.style.setProperty('--i',i));
+  new IntersectionObserver((en,ob)=>{if(en[0].isIntersecting){svg.classList.add('drawn');ob.disconnect();}},{threshold:.25}).observe(svg);})();
+
+/* Fortschrittsbalken und aktive Welt in der Leiste. */
+const bar=document.querySelector('.progress');const jumps=[...document.querySelectorAll('.jump a')];
+const onScroll=()=>{const max=document.documentElement.scrollHeight-innerHeight;bar.style.setProperty('--p',max>0?scrollY/max:0);
+  let cur=null;jumps.forEach(a=>{const s=document.querySelector(a.getAttribute('href'));if(s.getBoundingClientRect().top<innerHeight*.4){cur=a;}});
+  jumps.forEach(a=>a.classList.toggle('on',a===cur));};
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+/* Live-Suche über Name, Rolle, Spitznamen und Text. */
+const q=document.getElementById('q'),hits=document.getElementById('hits');
+q.addEventListener('input',()=>{const s=q.value.trim().toLowerCase();let n=0;
+  document.querySelectorAll('.card').forEach(card=>{const ok=!s||card.textContent.toLowerCase().includes(s);card.classList.toggle('gone',!ok);if(ok){n++;card.classList.add('in');}});
+  hits.textContent=s?`${n} von ${chars.length}`:'';});
+
+/* Großansicht: Bild fliegt aus dem Kreis heraus, Klick ins Bild vergrößert zur Lupe, Pfeile blättern. */
+const lb=document.getElementById('lb'),lbImg=document.getElementById('lb-img'),lbFrame=document.querySelector('.lb-frame'),lbName=document.getElementById('lb-name'),lbRole=document.getElementById('lb-role');
+let lbList=[],lbAt=0,lbFrom=null;
+const lbShow=(i,dir)=>{lbAt=(i+lbList.length)%lbList.length;const c=lbList[lbAt];lbFrame.classList.remove('zoomed');
+  lbImg.src=`figuren/${c.img}.jpg`;lbImg.alt='Standbild: '+c.n;lbName.textContent=c.n;lbRole.textContent=c.role;
+  if(dir&&!calm){lbFrame.animate([{transform:`translateX(${dir*60}px) scale(.92)`,opacity:0},{transform:'none',opacity:1}],{duration:280,easing:'cubic-bezier(.2,.9,.3,1.2)'});}};
+const lbOpen=(c,avatar)=>{lbList=chars.filter(x=>!document.getElementById('c-'+x.img).classList.contains('gone'));lbFrom=avatar;
+  lb.classList.remove('closing');lb.showModal();lbShow(lbList.indexOf(c),0);
+  if(!calm){const a=avatar.getBoundingClientRect(),b=lbFrame.getBoundingClientRect();
+    lbFrame.animate([{transform:`translate(${a.left+a.width/2-(b.left+b.width/2)}px,${a.top+a.height/2-(b.top+b.height/2)}px) scale(${a.width/b.width})`,borderRadius:'50%'},{transform:'none',borderRadius:'14px'}],{duration:480,easing:'cubic-bezier(.2,.9,.25,1.15)'});}};
+const lbClose=()=>{if(calm){lb.close();return;}lb.classList.add('closing');
+  const anim=lbFrame.animate([{transform:'none',opacity:1},{transform:'scale(.6)',opacity:0}],{duration:220,easing:'ease-in'});anim.onfinish=()=>{lb.close();lb.classList.remove('closing');if(lbFrom){lbFrom.focus();}};};
+document.addEventListener('click',e=>{const a=e.target.closest('.card .avatar');if(!a){return;}e.preventDefault();
+  lbOpen(chars.find(c=>'c-'+c.img===a.closest('.card').id),a);});
+document.getElementById('lb-x').addEventListener('click',lbClose);
+document.getElementById('lb-p').addEventListener('click',()=>lbShow(lbAt-1,-1));
+document.getElementById('lb-n').addEventListener('click',()=>lbShow(lbAt+1,1));
+lb.addEventListener('cancel',e=>{e.preventDefault();lbClose();});
+lb.addEventListener('click',e=>{if(e.target===lb||e.target.classList.contains('lb-in')){lbClose();}});
+lb.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){lbShow(lbAt-1,-1);}if(e.key==='ArrowRight'){lbShow(lbAt+1,1);}});
+const lbAim=e=>{const r=lbFrame.getBoundingClientRect();lbFrame.style.setProperty('--ox',((e.clientX-r.left)/r.width*100)+'%');lbFrame.style.setProperty('--oy',((e.clientY-r.top)/r.height*100)+'%');};
+lbFrame.addEventListener('click',e=>{lbAim(e);lbFrame.classList.toggle('zoomed');});
+lbFrame.addEventListener('pointermove',e=>{if(lbFrame.classList.contains('zoomed')){lbAim(e);}});
+
+/* ---------- Sternenhimmel ---------- */
+/* Drei Tiefenebenen mit Funkeln, Parallaxe zu Maus und Scrollen, Sternschnuppen und ein kurzer Warp beim Öffnen eines Bildes oder Springen. */
+const sky=document.getElementById('sky'),sx=sky.getContext('2d');
+let sw=0,sh=0,stars=[],shots=[],warp=0,px=0,py=0,skyOn=true;
+const skySize=()=>{const d=Math.min(devicePixelRatio||1,2);sw=innerWidth;sh=innerHeight;sky.width=sw*d;sky.height=sh*d;sx.setTransform(d,0,0,d,0,0);
+  const n=Math.round(Math.min(420,sw*sh/4200));stars=Array.from({length:n},()=>{const z=Math.random();return{x:Math.random(),y:Math.random(),z:z,r:.4+z*z*1.7,ph:Math.random()*6.28,sp:.6+Math.random()*2.2,hue:[225,200,45,330,0][Math.floor(Math.random()*5)]};});};
+const skyDraw=t=>{sx.clearRect(0,0,sw,sh);const cx=sw/2,cy=sh/2,sc=scrollY;
+  for(const s of stars){const depth=.15+s.z*.85;let x=(s.x*sw+px*depth*26)%sw,y=(s.y*sh-sc*depth*.12+py*depth*26)%sh;if(x<0){x+=sw;}if(y<0){y+=sh;}
+    const tw=.55+.45*Math.sin(t*.001*s.sp+s.ph);sx.globalAlpha=tw*(.35+s.z*.65);sx.fillStyle=s.hue?`hsl(${s.hue} 90% 85%)`:'#fff';
+    if(warp>.02){const dx=x-cx,dy=y-cy,k=warp*depth*.35;sx.strokeStyle=sx.fillStyle;sx.lineWidth=s.r;sx.beginPath();sx.moveTo(x,y);sx.lineTo(x+dx*k,y+dy*k);sx.stroke();}
+    else{sx.beginPath();sx.arc(x,y,s.r,0,6.283);sx.fill();if(s.z>.93){sx.globalAlpha*=.35;sx.beginPath();sx.arc(x,y,s.r*3.2,0,6.283);sx.fill();}}}
+  sx.globalAlpha=1;
+  shots=shots.filter(m=>m.life>0);for(const m of shots){m.x+=m.vx;m.y+=m.vy;m.life-=.016;const g=sx.createLinearGradient(m.x,m.y,m.x-m.vx*14,m.y-m.vy*14);g.addColorStop(0,`rgba(255,255,255,${m.life})`);g.addColorStop(1,'rgba(160,190,255,0)');
+    sx.strokeStyle=g;sx.lineWidth=2;sx.beginPath();sx.moveTo(m.x,m.y);sx.lineTo(m.x-m.vx*14,m.y-m.vy*14);sx.stroke();}
+  warp*=.93;};
+const skyLoop=t=>{if(skyOn){skyDraw(t);}requestAnimationFrame(skyLoop);};
+const shoot=()=>{if(skyOn&&!calm){const left=Math.random()<.5;shots.push({x:left?Math.random()*sw*.6:sw*.4+Math.random()*sw*.6,y:Math.random()*sh*.35,vx:(left?1:-1)*(7+Math.random()*6),vy:3+Math.random()*4,life:1});}
+  setTimeout(shoot,2500+Math.random()*5500);};
+skySize();addEventListener('resize',skySize);
+document.addEventListener('visibilitychange',()=>{skyOn=!document.hidden;});
+if(calm){skyDraw(0);addEventListener('scroll',()=>skyDraw(0),{passive:true});}
+else{addEventListener('pointermove',e=>{px=e.clientX/sw-.5;py=e.clientY/sh-.5;},{passive:true});requestAnimationFrame(skyLoop);setTimeout(shoot,1800);}
+/* Warp: beim Öffnen der Großansicht, beim Blättern und bei Sprüngen zwischen den Welten. */
+const warpGo=v=>{if(!calm){warp=v;}};
+document.addEventListener('click',e=>{if(e.target.closest('.card .avatar')){warpGo(1.6);}else if(e.target.closest('.lb-btn')){warpGo(.7);}else if(e.target.closest('.jump a,.parade a')){warpGo(1.1);}});
+document.querySelectorAll('.jump a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();document.querySelector(a.getAttribute('href')).scrollIntoView({behavior:calm?'auto':'smooth',block:'start'});}));
+/* Jeder Mond startet an einer anderen Stelle seiner Umlaufbahn. */
+document.querySelectorAll('.card .avatar').forEach((a,i)=>a.style.setProperty('--o',(i*1.7)%5.5));
 </script>
 </body>
 </html>
