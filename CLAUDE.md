@@ -12,6 +12,9 @@ Unofficial fan overview of the characters in the cartoons of the YouTube channel
 - The footer credits the maker as "Tunefish" with links to the GitHub profile and this repo. Never put the user's real name or mail address on the page.
 - The look is a fixed dark space theme (star canvas `#sky`, planets, orbits). All motion must stay switched off under `prefers-reduced-motion`.
 - Map nodes, the parade portraits and the profile modal are tied together by name: the `.nm` text of a map node must equal the `n` of an entry in `chars`, otherwise the node does not open a profile. When `rels` gains an important relation, add it to the map as well.
+- Phones (up to 700 px): the map is hidden and `#maplist` shows the same relations from the `links` array, so a relation added to the map goes into `links` too. Tap targets stay at 44 px or more, and blur effects stay off for narrow and touch screens.
+- Every link that leaves the page gets `target="_blank" rel="noopener"`; in-page anchors do not.
+- The README shows three screenshots from `docs/`; retake them when the look changes.
 - Do not put a CSS `filter` on the map's `.edge` paths: straight lines have an empty bounding box and disappear.
 - Mark every fact on the page as "belegt" (said or shown in a video, description or merch) or "vermutet". Names that only come from auto-generated captions count as "vermutet".
 
@@ -26,4 +29,4 @@ Scripts in `tools/` were run from a scratch folder that holds `vid/`, `dl/`, `su
 
 ## Checking the page
 
-No test suite. Open `index.html` in headless Chromium (Playwright's cached `chrome-headless-shell` works with `playwright-core` and `executablePath`) and check: 82 cards, no broken image, no horizontal overflow at 390 px, lightbox opens, pages, zooms and closes, search narrows the cards, no console errors. Screenshots with `--force-prefers-reduced-motion` show the final state; `--virtual-time-budget` does not advance the CSS animations.
+No test suite. Open `index.html` in headless Chromium (Playwright's cached `chrome-headless-shell` works with `playwright-core` and `executablePath`) and check: 82 cards, no broken image, no horizontal overflow at 360, 390, 430 and 768 px (with touch emulation), lightbox opens, pages, zooms and closes, search narrows the cards, no console errors. Screenshots with `--force-prefers-reduced-motion` show the final state; `--virtual-time-budget` does not advance the CSS animations.

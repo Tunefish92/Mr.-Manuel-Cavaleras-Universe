@@ -2,7 +2,8 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060918">
 <title>Mr. Manuel Cavaleras Universe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -277,6 +278,59 @@ dialog#pf::backdrop{background:rgba(6,9,24,.8);backdrop-filter:blur(6px);-webkit
 .parade a{cursor:pointer}
 .parade{padding:24px 0}
 .parade a:hover{transform:scale(1.22) rotate(-4deg)}
+/* Handy: Beziehungen als antippbare Liste, Profil als Blatt von unten, eine wischbare Leiste, große Tippflächen, weniger Rechenlast. */
+.maplist{display:none;list-style:none;margin:0;padding:0;flex-direction:column;gap:10px}
+.maplist li{--c:var(--parody);display:grid;grid-template-columns:1fr;gap:6px;padding:10px;border-radius:14px;border:1.5px solid color-mix(in srgb,var(--c) 55%,transparent);background:var(--surface)}
+.maplist li.guess{border-style:dashed}
+.maplist li.w-tyrol{--c:var(--tyrol)}.maplist li.w-village{--c:var(--village)}.maplist li.w-vienna{--c:var(--vienna)}
+.maplist button{display:flex;align-items:center;gap:10px;min-height:52px;width:100%;text-align:left;font:inherit;color:var(--ink);background:transparent;border:0;padding:2px;border-radius:10px;cursor:pointer}
+.maplist button:active{background:var(--tint-parody)}
+.maplist img{flex:none;width:48px;height:48px;border-radius:50%;object-fit:cover;object-position:50% 0;background:#fafafa;border:2px solid var(--c)}
+.maplist .nm{font:700 1.02rem var(--display)}
+.maplist .how{font-style:italic;font-size:.9rem;color:var(--c);padding-left:60px}
+.only-phone{display:none}
+.lb-frame img{-webkit-user-drag:none;user-select:none}
+.pf-grip{display:none}
+@media (max-width:700px){
+  .wrap{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right));gap:30px}
+  .only-wide{display:none}.only-phone{display:inline}
+  .mapbox{display:none}.maplist{display:flex}
+  .parade a{width:76px;height:76px}
+  .jump{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;margin-inline:-18px;padding:8px 18px;overscroll-behavior-x:contain}
+  .jump::-webkit-scrollbar{display:none}
+  .jump a{flex:none;min-height:44px;display:inline-flex;align-items:center;padding-inline:14px}
+  .jump input{flex:none;order:-1;width:158px;min-width:0;min-height:44px}
+  .jump output{flex:none}
+  .world{scroll-margin-top:72px}
+  .yt,.maker .by,.maker .more,.pf-go{min-height:44px}
+  .maker .more{display:inline-flex;align-items:center}
+  .src{line-height:2}
+  .legend{flex-direction:column;gap:8px}
+  .tablebox table{min-width:0}
+  .tablebox thead{display:none}
+  .tablebox tr{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .tablebox tr:last-child{border-bottom:0}
+  .tablebox td{padding:0;border:0}
+  .tablebox td:last-child{margin-left:auto}
+  dialog#pf{width:100vw;max-width:100vw;margin:auto 0 0;max-height:90dvh}
+  .pf{border-radius:22px 22px 0 0;border-bottom:0;max-height:90dvh;padding:26px 18px calc(18px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+  .pf-grip{display:block;position:absolute;top:9px;left:50%;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:rgba(255,255,255,.35)}
+  #pf-x{width:44px;height:44px;top:10px;right:10px}
+  .lb-frame{width:min(94vw,66dvh);height:min(94vw,66dvh)}
+  #lb-p,#lb-n{top:auto;bottom:calc(14px + env(safe-area-inset-bottom));margin-top:0}
+  #lb-p{left:22%}#lb-n{right:22%}
+  .lb-in{padding-bottom:76px}
+}
+@media (max-width:700px),(pointer:coarse){
+  .card,.small li,.stat,.note,.jump a,.jump input,.yt,.maker .by,.tablebox{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .card,.small li,.tablebox,.maplist li{background:rgba(16,21,48,.9)}
+  .jump{background:rgba(6,9,24,.94);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .avatar::after{animation:none}
+  .jump a{min-height:44px;display:inline-flex;align-items:center;padding-inline:14px}
+  .jump input,.yt,.maker .by,.maker .more,.pf-go{min-height:44px}
+  .maker .more{display:inline-flex;align-items:center}
+  .src{line-height:2}
+}
 @media (prefers-reduced-motion: reduce){.avatar::before{display:none}}
 </style>
 </head>
@@ -320,7 +374,7 @@ dialog#pf::backdrop{background:rgba(6,9,24,.8);backdrop-filter:blur(6px);-webkit
 
 <section aria-labelledby="map-h">
   <h2 id="map-h">Beziehungskarte</h2>
-  <p class="hint">Eine Figur anklicken öffnet ihr Profil, auch bei den runden Bildern ganz oben. Durchgezogene Linien sind in den Videos belegt, gestrichelte sind vermutet. Am Handy seitlich wischen.</p>
+  <p class="hint"><span class="only-wide">Eine Figur anklicken öffnet ihr Profil, auch bei den runden Bildern ganz oben. Durchgezogene Linien sind in den Videos belegt, gestrichelte sind vermutet.</span><span class="only-phone">Eine Figur antippen öffnet ihr Profil, auch bei den runden Bildern ganz oben. Gestrichelt umrandete Verbindungen sind vermutet.</span></p>
   <div class="mapbox">
   <svg viewBox="0 0 1330 660" role="img" aria-label="Beziehungskarte der wichtigsten Figuren. Dieselben Beziehungen stehen in der Tabelle weiter unten.">
     <text class="colh" x="140" y="30" text-anchor="middle" style="fill:var(--tyrol)">Herberts Show</text>
@@ -399,6 +453,7 @@ dialog#pf::backdrop{background:rgba(6,9,24,.8);backdrop-filter:blur(6px);-webkit
     <g class="n-village"><rect x="1145" y="557" width="170" height="46" rx="8"/><text class="nm" x="1230" y="577" text-anchor="middle">Der Bub</text><text class="sub" x="1230" y="593" text-anchor="middle">Sohn der Koflers</text></g>
   </svg>
   </div>
+  <ul class="maplist" id="maplist" aria-label="Beziehungen der wichtigsten Figuren"></ul>
 </section>
 
 <section class="world w-tyrol" aria-labelledby="w1">
@@ -455,7 +510,7 @@ dialog#pf::backdrop{background:rgba(6,9,24,.8);backdrop-filter:blur(6px);-webkit
     <a class="more" href="https://github.com/Tunefish92?tab=repositories" target="_blank" rel="noopener">Weitere Projekte</a>
   </div>
   <p>Idee, Zusammenstellung und Umsetzung: Tunefish, ein Fan der Videos. Entstanden mit KI-Unterstützung (Claude Code).</p>
-  <p><b>Inoffizielle Fan-Seite.</b> Kein Angebot von Manuel Cavaleras und nicht mit ihm verbunden. Alle Figuren und Bilder gehören ihrem Schöpfer: <a href="https://www.youtube.com/@manuelcavaleras">youtube.com/@manuelcavaleras</a></p>
+  <p><b>Inoffizielle Fan-Seite.</b> Kein Angebot von Manuel Cavaleras und nicht mit ihm verbunden. Alle Figuren und Bilder gehören ihrem Schöpfer: <a href="https://www.youtube.com/@manuelcavaleras" target="_blank" rel="noopener">youtube.com/@manuelcavaleras</a></p>
   <p>Quellen: die Videos des Kanals mit ihren Untertiteln, Titeln und Beschreibungen, Sprecherangaben in diesen Texten und die Design-Namen im Spreadshop des Kanals. Stand: 20. November 2026.</p>
   <p>Nicht aufgenommen: die Musikvideos, die Realfilme von 2005 bis 2009 und „Wienliebe“, das aus fremden Fernsehausschnitten besteht.</p>
 </footer>
@@ -463,9 +518,9 @@ dialog#pf::backdrop{background:rgba(6,9,24,.8);backdrop-filter:blur(6px);-webkit
 
 <dialog id="lb" aria-label="Großansicht">
   <div class="lb-in">
-    <div class="lb-frame"><img id="lb-img" src="" alt=""></div>
+    <div class="lb-frame"><img id="lb-img" src="" alt="" draggable="false"></div>
     <div class="lb-cap"><b id="lb-name"></b><span id="lb-role"></span></div>
-    <div class="lb-hint">Ins Bild klicken für die Lupe · Pfeiltasten blättern · Esc schließt</div>
+    <div class="lb-hint"><span class="only-wide">Ins Bild klicken für die Lupe · Pfeiltasten blättern · Esc schließt</span><span class="only-phone">Tippen für die Lupe · wischen blättert</span></div>
   </div>
   <button class="lb-btn" id="lb-p" aria-label="Vorige Figur">‹</button>
   <button class="lb-btn" id="lb-n" aria-label="Nächste Figur">›</button>
@@ -475,6 +530,7 @@ dialog#pf::backdrop{background:rgba(6,9,24,.8);backdrop-filter:blur(6px);-webkit
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"><b></b><span></span></div>
 <dialog id="pf" aria-labelledby="pf-name">
   <div class="pf" id="pf-box">
+    <span class="pf-grip" aria-hidden="true"></span>
     <button class="lb-btn" id="pf-x" aria-label="Schließen">×</button>
     <button class="pf-pic" id="pf-pic" aria-label="Bild groß ansehen"><img id="pf-img" src="" alt=""></button>
     <div class="pf-body" id="pf-body"></div>
@@ -732,11 +788,11 @@ const chars=[
   d:'Lacht über den Fehlschuss, bis alles brennt.',r:['Verliert gegen den Anführer der Bogenschützen'],v:['ritter']}
 ];
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
-const vlink=k=>`<a href="https://www.youtube.com/watch?v=${V[k][1]}">${esc(V[k][0])}</a>`;
+const vlink=k=>`<a href="https://www.youtube.com/watch?v=${V[k][1]}" target="_blank" rel="noopener">${esc(V[k][0])}</a>`;
 document.querySelectorAll('.cards').forEach(box=>{
   box.innerHTML=chars.filter(c=>c.w===box.dataset.world).map(c=>`
   <article class="card">
-    <div class="top"><a class="avatar" href="figuren/${c.img}.jpg"><img src="figuren/thumb/${c.img}.jpg" alt="Standbild: ${esc(c.n)}" width="76" height="76" loading="lazy"></a><div class="who"><h3>${esc(c.n)}</h3><div>${c.sure?S:G}</div></div></div>
+    <div class="top"><a class="avatar" href="figuren/${c.img}.jpg" target="_blank" rel="noopener"><img src="figuren/thumb/${c.img}.jpg" alt="Standbild: ${esc(c.n)}" width="76" height="76" loading="lazy"></a><div class="who"><h3>${esc(c.n)}</h3><div>${c.sure?S:G}</div></div></div>
     <p class="role">${esc(c.role)}</p>
     ${c.aka.length?`<ul class="aka">${c.aka.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`:''}
     <p>${esc(c.d)}</p>
@@ -827,6 +883,7 @@ document.getElementById('st-rel').textContent=rels.length;
 
 /* ---------- Bewegung und Zoom ---------- */
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const phone=matchMedia('(max-width:700px)');
 
 /* Titel: Buchstaben einzeln hereinfallen lassen. */
 (()=>{const h=document.querySelector('h1');const t=h.textContent;h.setAttribute('aria-label',t);
@@ -901,7 +958,8 @@ lb.addEventListener('cancel',e=>{e.preventDefault();lbClose();});
 lb.addEventListener('click',e=>{if(e.target===lb||e.target.classList.contains('lb-in')){lbClose();}});
 lb.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();lbClose();}if(e.key==='ArrowLeft'){lbShow(lbAt-1,-1);}if(e.key==='ArrowRight'){lbShow(lbAt+1,1);}});
 const lbAim=e=>{const r=lbFrame.getBoundingClientRect();lbFrame.style.setProperty('--ox',((e.clientX-r.left)/r.width*100)+'%');lbFrame.style.setProperty('--oy',((e.clientY-r.top)/r.height*100)+'%');};
-lbFrame.addEventListener('click',e=>{lbAim(e);lbFrame.classList.toggle('zoomed');});
+let lbSwiped=false;
+lbFrame.addEventListener('click',e=>{if(lbSwiped){lbSwiped=false;return;}lbAim(e);lbFrame.classList.toggle('zoomed');});
 lbFrame.addEventListener('pointermove',e=>{if(lbFrame.classList.contains('zoomed')){lbAim(e);}});
 
 /* ---------- Sternenhimmel ---------- */
@@ -945,12 +1003,14 @@ const pfOpen=(c,from)=>{pfChar=c;pfFrom=from;pfBox.className='pf w-'+c.w;pfImg.s
     ${c.r.length?`<ul class="rel">${c.r.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`:''}
     <div class="src">Zu sehen in: ${c.v.map(vlink).join(' · ')}</div><button class="pf-go" id="pf-go">Zur Karte der Figur springen</button>`;
   pf.showModal();warpGo(1.3);
-  if(!calm){const a=from.getBoundingClientRect(),b=pfBox.getBoundingClientRect();
-    pfBox.animate([{transform:`translate(${a.left+a.width/2-(b.left+b.width/2)}px,${a.top+a.height/2-(b.top+b.height/2)}px) scale(.18)`,opacity:0},{transform:'none',opacity:1}],{duration:460,easing:'cubic-bezier(.2,.9,.25,1.12)'});}};
+  if(calm){return;}
+  if(phone.matches){pfBox.animate([{transform:'translateY(100%)'},{transform:'none'}],{duration:340,easing:'cubic-bezier(.2,.9,.25,1)'});return;}
+  const a=from.getBoundingClientRect(),b=pfBox.getBoundingClientRect();
+  pfBox.animate([{transform:`translate(${a.left+a.width/2-(b.left+b.width/2)}px,${a.top+a.height/2-(b.top+b.height/2)}px) scale(.18)`,opacity:0},{transform:'none',opacity:1}],{duration:460,easing:'cubic-bezier(.2,.9,.25,1.12)'});};
 let pfClosing=false;
 const pfDone=()=>{if(!pfClosing){return;}pfClosing=false;if(pf.open){pf.close();}if(pfFrom){pfFrom.focus();}};
 const pfClose=()=>{if(pfClosing||!pf.open){return;}pfClosing=true;if(calm){pfDone();return;}
-  pfBox.animate([{transform:'none',opacity:1},{transform:'scale(.85)',opacity:0}],{duration:200,easing:'ease-in'}).onfinish=pfDone;setTimeout(pfDone,280);};
+  pfBox.animate(phone.matches?[{transform:'none'},{transform:'translateY(100%)'}]:[{transform:'none',opacity:1},{transform:'scale(.85)',opacity:0}],{duration:200,easing:'ease-in'}).onfinish=pfDone;setTimeout(pfDone,280);};
 document.querySelectorAll('.mapbox svg g[class^="n-"]').forEach(g=>{const c=chars.find(x=>x.n===g.querySelector('.nm').textContent);if(!c){return;}
   g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label','Profil öffnen: '+c.n);
   g.addEventListener('click',()=>pfOpen(c,g));
@@ -980,6 +1040,37 @@ if(matchMedia('(hover:hover)').matches){
   addEventListener('scroll',tipHide,{passive:true});document.addEventListener('click',tipHide);}
 document.addEventListener('focusin',e=>{const el=e.target.closest('.card .avatar');if(el){tipShow(el);}});
 document.addEventListener('focusout',tipHide);
+
+
+/* ---------- Handy ---------- */
+/* Beziehungen der Karte als Liste: jede Zeile zwei antippbare Figuren und dazwischen, wie sie zusammenhängen. [wer, wie, wer, vermutet?] */
+const links=[
+ ['Herbert Brunnthaler','verheiratet mit','Hildegard'],['Herbert Brunnthaler','hält die Kuh','Heidi'],['Herbert Brunnthaler','Freund von','Alfons'],
+ ['Herbert Brunnthaler','Nachbar von','Bärbel Unterranacher'],['Bärbel Unterranacher','hat ihn „gefunden“','Der Osterhase'],
+ ['Edith','Mutter von','Burli'],['Peppi Raffl','zu Gast bei','Edith'],['Frau Simacek','Patientin von','Dr. Eberhard Zupffinger'],
+ ['Das Hutmännchen','interviewt','Die Wiener Sonne'],['Die Wolke','Nachbarin von','Die Wiener Sonne'],['Das Hutmännchen','dieselbe Figur wie','Der Monologiker',1],
+ ['Der Wiener Bub','hält für den Weihnachtsmann','Der deutsche Hipster'],
+ ['Peppi Raffl','schwärmt vom Speck von','Ploner'],['Peppi Raffl','verschleppt','Gamper'],['Ploner','Kunde von','Gumpitsch'],
+ ['Gumpitsch','tratscht weiter über','Sepp Kruatlhuba'],['Sepp Kruatlhuba','früher Sitznachbar von','Ruppert Kofler',1],
+ ['Pater Vinzenz','treibt den Kirchenbeitrag ein bei','Ruppert Kofler'],['Ruppert Kofler','verheiratet mit','Die Koflerische'],
+ ['Die Koflerische','Mutter von','Der Bub'],['Ruppert Kofler','bringt den Touristen zu','Irmgard']
+];
+const byName=n=>chars.find(c=>c.n===n);
+const linkBtn=c=>`<button type="button" data-n="${esc(c.n)}" aria-label="Profil öffnen: ${esc(c.n)}"><img src="figuren/thumb/${c.img}.jpg" alt="" width="48" height="48" loading="lazy"><span class="nm">${esc(c.n)}</span></button>`;
+document.getElementById('maplist').innerHTML=links.map(l=>{const a=byName(l[0]),b=byName(l[2]);return `<li class="w-${a.w}${l[3]?' guess':''}">${linkBtn(a)}<span class="how">${esc(l[1])}${l[3]?' (vermutet)':''}</span>${linkBtn(b)}</li>`;}).join('');
+document.getElementById('maplist').addEventListener('click',e=>{const b=e.target.closest('button');if(b){pfOpen(byName(b.dataset.n),b);}});
+
+/* Profilblatt nach unten wegwischen, solange es ganz oben steht. */
+let pfY=null;
+pfBox.addEventListener('touchstart',e=>{pfY=phone.matches&&pfBox.scrollTop<=0?e.touches[0].clientY:null;},{passive:true});
+pfBox.addEventListener('touchend',e=>{if(pfY!==null&&e.changedTouches[0].clientY-pfY>90){pfClose();}pfY=null;},{passive:true});
+
+/* Großansicht: seitlich wischen blättert, solange die Lupe aus ist. */
+let lbX=null;
+lbFrame.addEventListener('pointerdown',e=>{lbX=e.clientX;});
+lbFrame.addEventListener('pointerup',e=>{if(lbX===null){return;}const dx=e.clientX-lbX;lbX=null;
+  if(Math.abs(dx)>45&&!lbFrame.classList.contains('zoomed')){lbSwiped=true;lbShow(lbAt+(dx<0?1:-1),dx<0?1:-1);warpGo(.7);setTimeout(()=>{lbSwiped=false;},350);}});
+lbFrame.addEventListener('pointercancel',()=>{lbX=null;});
 </script>
 </body>
 </html>
